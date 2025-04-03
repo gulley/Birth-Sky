@@ -10,7 +10,11 @@
     <div class="container">
         <h1>Birth Sky</h1>
         <div class="controls">
-            <button id="update-btn">Update to Current Time</button>
+            <div class="date-time-controls">
+                <input type="datetime-local" id="date-picker" class="date-picker">
+                <button id="update-btn">Update</button>
+                <button id="current-time-btn">Use Current Time</button>
+            </div>
             <span id="current-time"></span>
         </div>
         <div class="canvas-container">

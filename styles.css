@@ -61,6 +61,15 @@ canvas {
     margin: 20px 0;
 }
 
+.date-time-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
 button {
     background: linear-gradient(to bottom, #0596be, #054e69);
     color: white;
@@ -69,12 +78,27 @@ button {
     text-align: center;
     border-radius: 4px;
     cursor: pointer;
-    margin: 0 5px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 
 button:hover {
     background: linear-gradient(to bottom, #07b6e6, #0673a0);
+}
+
+.date-picker {
+    background-color: #043b4e;
+    color: #e0f0ff;
+    border: 1px solid #0596be;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-family: Arial, sans-serif;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.date-picker:focus {
+    outline: none;
+    border-color: #07b6e6;
+    box-shadow: 0 0 8px rgba(7, 182, 230, 0.5);
 }
 
 #current-time {

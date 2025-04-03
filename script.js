@@ -7,7 +7,7 @@ const CELESTIAL_OBJECTS = {
         phaseOffset: 15, 
         eccentricity: 0.0549, 
         color: '#d1d1d1',
-        radius: 80
+        radius: 110
     },
     'sun': { 
         symbol: '☉', 
@@ -16,7 +16,7 @@ const CELESTIAL_OBJECTS = {
         phaseOffset: 0, 
         eccentricity: 0.0167, 
         color: '#ffdd44',
-        radius: 110
+        radius: 130
     },
     'mercury': { 
         symbol: '☿', 
@@ -25,7 +25,7 @@ const CELESTIAL_OBJECTS = {
         phaseOffset: 25, 
         eccentricity: 0.21, 
         color: '#8c8c8c',
-        radius: 140
+        radius: 150
     },
     'venus': { 
         symbol: '♀', 
@@ -43,7 +43,7 @@ const CELESTIAL_OBJECTS = {
         phaseOffset: 120, 
         eccentricity: 0.09, 
         color: '#c1440e',
-        radius: 200
+        radius: 190
     },
     'jupiter': { 
         symbol: '♃', 
@@ -52,7 +52,7 @@ const CELESTIAL_OBJECTS = {
         phaseOffset: 65, 
         eccentricity: 0.05, 
         color: '#d8ca9d',
-        radius: 230
+        radius: 210
     },
     'saturn': { 
         symbol: '♄', 
@@ -61,7 +61,7 @@ const CELESTIAL_OBJECTS = {
         phaseOffset: 210, 
         eccentricity: 0.06, 
         color: '#e0bb95',
-        radius: 260
+        radius: 230
     }
 };
 
@@ -76,8 +76,29 @@ document.addEventListener('DOMContentLoaded', function() {
     centerY = canvas.height / 2;
     maxRadius = Math.min(centerX, centerY) - 50;
 
-    // Update button
-    document.getElementById('update-btn').addEventListener('click', updateCelestialPositions);
+    // Initialize date picker with current date and time
+    const now = new Date();
+    const dateString = now.toISOString().slice(0, 16); // Format: YYYY-MM-DDThh:mm
+    document.getElementById('date-picker').value = dateString;
+
+    // Update button - use selected date
+    document.getElementById('update-btn').addEventListener('click', function() {
+        const dateInput = document.getElementById('date-picker').value;
+        if (dateInput) {
+            const selectedDate = new Date(dateInput);
+            updateCelestialPositions(selectedDate);
+        } else {
+            updateCelestialPositions();
+        }
+    });
+
+    // Current time button - use current time
+    document.getElementById('current-time-btn').addEventListener('click', function() {
+        const now = new Date();
+        const dateString = now.toISOString().slice(0, 16);
+        document.getElementById('date-picker').value = dateString;
+        updateCelestialPositions(now);
+    });
 
     // Initial draw on page load
     updateCelestialPositions();
@@ -131,26 +152,13 @@ function drawCelestialChart() {
     ctx.arc(centerX, centerY, maxRadius, 0, 2 * Math.PI);
     ctx.stroke();
     
-    // Draw inner concentric rings (subtler)
-    ctx.strokeStyle = 'rgba(5, 150, 190, 0.3)';
+    // Draw orbit circles for each planet
     ctx.lineWidth = 1;
-    for (let r = 100; r < maxRadius; r += 50) {
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, r, 0, 2 * Math.PI);
-        ctx.stroke();
-    }
+    ctx.strokeStyle = 'rgba(100, 100, 100, 0.5)'; // Low-contrast gray
     
-    // Draw zodiac division lines (12 sections)
-    ctx.strokeStyle = 'rgba(5, 150, 190, 0.5)';
-    ctx.lineWidth = 1;
-    for (let angle = 0; angle < 360; angle += 30) {
-        const radians = angle * Math.PI / 180;
+    for (const [objectName, objectInfo] of Object.entries(CELESTIAL_OBJECTS)) {
         ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.lineTo(
-            centerX + maxRadius * Math.cos(radians),
-            centerY + maxRadius * Math.sin(radians)
-        );
+        ctx.arc(centerX, centerY, objectInfo.radius, 0, 2 * Math.PI);
         ctx.stroke();
     }
 }
@@ -260,10 +268,10 @@ function colorToRgb(hex) {
 }
 
 // Update celestial object positions in the UI
-function updateCelestialPositions() {
-    // Get current time
-    const now = new Date();
-    const utcString = now.toUTCString();
+function updateCelestialPositions(date) {
+    // Use provided date or current time
+    const displayDate = date || new Date();
+    const utcString = displayDate.toUTCString();
     document.getElementById('current-time').textContent = utcString;
     
     // Draw the base chart (without Earth)
@@ -277,7 +285,7 @@ function updateCelestialPositions() {
     // First, calculate all positions
     for (const [objectName, objectInfo] of Object.entries(CELESTIAL_OBJECTS)) {
         // Get ecliptic longitude
-        const longitude = calculateEclipticLongitude(objectName, now);
+        const longitude = calculateEclipticLongitude(objectName, displayDate);
         
         // Store the data for later use
         objectData.push({
