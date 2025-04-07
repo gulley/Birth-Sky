@@ -1,65 +1,99 @@
+// The astronomy-engine library is loaded from CDN and available as a global variable
+// No import needed
+
 // --- Configuration ---
+// Zodiac signs configuration
+const ZODIAC_SIGNS = [
+    { symbol: '♈', name: 'Aries', start: 0, end: 30 },
+    { symbol: '♉', name: 'Taurus', start: 30, end: 60 },
+    { symbol: '♊', name: 'Gemini', start: 60, end: 90 },
+    { symbol: '♋', name: 'Cancer', start: 90, end: 120 },
+    { symbol: '♌', name: 'Leo', start: 120, end: 150 },
+    { symbol: '♍', name: 'Virgo', start: 150, end: 180 },
+    { symbol: '♎', name: 'Libra', start: 180, end: 210 },
+    { symbol: '♏', name: 'Scorpio', start: 210, end: 240 },
+    { symbol: '♐', name: 'Sagittarius', start: 240, end: 270 },
+    { symbol: '♑', name: 'Capricorn', start: 270, end: 300 },
+    { symbol: '♒', name: 'Aquarius', start: 300, end: 330 },
+    { symbol: '♓', name: 'Pisces', start: 330, end: 360 }
+];
+
+// Celestial objects configuration with improved orbital elements
 const CELESTIAL_OBJECTS = {
     'moon': { 
         symbol: '☽', 
         name: 'Moon', 
-        period: 27.3, 
-        phaseOffset: 15, 
-        eccentricity: 0.0549, 
+        // Lunar orbital elements (simplified)
+        period: 27.321582, 
+        phaseOffset: 134.9, 
+        eccentricity: 0.0549,
+        inclination: 5.145,
         color: '#d1d1d1',
-        radius: 110
+        radius: 50
     },
     'sun': { 
         symbol: '☉', 
         name: 'Sun', 
-        period: 365.25, 
-        phaseOffset: 0, 
-        eccentricity: 0.0167, 
+        // Earth's orbital elements (for Sun's apparent motion)
+        period: 365.256363, 
+        phaseOffset: 280.46, 
+        eccentricity: 0.01671022,
+        inclination: 0,
         color: '#ffdd44',
-        radius: 130
+        radius: 100
     },
     'mercury': { 
         symbol: '☿', 
         name: 'Mercury', 
-        period: 87.97, 
-        phaseOffset: 25, 
-        eccentricity: 0.21, 
+        // Mercury's orbital elements
+        period: 87.9691, 
+        phaseOffset: 174.796, 
+        eccentricity: 0.20563069,
+        inclination: 7.00487,
         color: '#8c8c8c',
         radius: 150
     },
     'venus': { 
         symbol: '♀', 
         name: 'Venus', 
-        period: 224.7, 
-        phaseOffset: 180, 
-        eccentricity: 0.01, 
+        // Venus's orbital elements
+        period: 224.7008, 
+        phaseOffset: 50.115, 
+        eccentricity: 0.00677323,
+        inclination: 3.39471,
         color: '#e39e54',
         radius: 170
     },
     'mars': { 
         symbol: '♂', 
         name: 'Mars', 
-        period: 686.98, 
-        phaseOffset: 120, 
-        eccentricity: 0.09, 
+        // Mars's orbital elements
+        period: 686.9796, 
+        phaseOffset: 19.3730, 
+        eccentricity: 0.09341233,
+        inclination: 1.85061,
         color: '#c1440e',
         radius: 190
     },
     'jupiter': { 
         symbol: '♃', 
         name: 'Jupiter', 
+        // Jupiter's orbital elements
         period: 4332.59, 
-        phaseOffset: 65, 
-        eccentricity: 0.05, 
+        phaseOffset: 18.818, 
+        eccentricity: 0.04839266,
+        inclination: 1.30530,
         color: '#d8ca9d',
         radius: 210
     },
     'saturn': { 
         symbol: '♄', 
         name: 'Saturn', 
+        // Saturn's orbital elements
         period: 10759.22, 
-        phaseOffset: 210, 
-        eccentricity: 0.06, 
+        phaseOffset: 320.346, 
+        eccentricity: 0.05415060,
+        inclination: 2.48446,
         color: '#e0bb95',
         radius: 230
     }
@@ -104,33 +138,79 @@ document.addEventListener('DOMContentLoaded', function() {
     updateCelestialPositions();
 });
 
-// Epoch for calculations (J2000.0)
-const J2000 = new Date('2000-01-01T12:00:00Z');
-
-// Function to calculate number of days since J2000
-function daysSinceJ2000(date) {
-    const millisPerDay = 24 * 60 * 60 * 1000;
-    return (date - J2000) / millisPerDay;
+// Function to calculate ecliptic longitude using the astronomy-engine library
+function calculateEclipticLongitude(celestialObject, date) {
+    try {
+        // Map our celestial object names to astronomy-engine body names
+        const bodyMap = {
+            'sun': Astronomy.Body.Sun,
+            'moon': Astronomy.Body.Moon,
+            'mercury': Astronomy.Body.Mercury,
+            'venus': Astronomy.Body.Venus,
+            'mars': Astronomy.Body.Mars,
+            'jupiter': Astronomy.Body.Jupiter,
+            'saturn': Astronomy.Body.Saturn
+        };
+        
+        // Get the astronomy-engine body
+        const body = bodyMap[celestialObject];
+        
+        if (!body) {
+            console.error(`Unknown celestial object: ${celestialObject}`);
+            return 0;
+        }
+        
+        // Convert JavaScript Date to Astronomy.Time
+        const time = new Astronomy.Time(date);
+        
+        // Calculate the ecliptic longitude
+        // We use equatorial coordinates and convert to ecliptic
+        const equ = Astronomy.Equator(body, time, false, false);
+        const ecl = Astronomy.Ecliptic(equ);
+        
+        // Return the longitude in degrees (0-360)
+        return (ecl.elon * 180 / Math.PI + 360) % 360;
+    } catch (error) {
+        console.error(`Error calculating position for ${celestialObject}:`, error);
+        
+        // Fallback to a simple calculation based on orbital elements
+        // This is less accurate but will work without the astronomy-engine
+        return calculateSimplePosition(celestialObject, date);
+    }
 }
 
-// Function to calculate approximate ecliptic longitude based on orbital parameters
-function calculateEclipticLongitude(celestialObject, date) {
-    const days = daysSinceJ2000(date);
-    const period = CELESTIAL_OBJECTS[celestialObject].period;
-    const phaseOffset = CELESTIAL_OBJECTS[celestialObject].phaseOffset;
-    const eccentricity = CELESTIAL_OBJECTS[celestialObject].eccentricity;
+// Fallback function to calculate approximate positions based on orbital elements
+function calculateSimplePosition(celestialObject, date) {
+    const objectInfo = CELESTIAL_OBJECTS[celestialObject];
     
-    // Calculate mean anomaly (simple circular approximation)
-    const meanMotion = 360 / period; // degrees per day
-    let meanAnomaly = (meanMotion * days + phaseOffset) % 360;
+    // Convert date to days since J2000.0 (January 1, 2000, 12:00 UTC)
+    const j2000 = new Date('2000-01-01T12:00:00Z');
+    const daysSinceJ2000 = (date.getTime() - j2000.getTime()) / (1000 * 60 * 60 * 24);
     
-    // Simple approximation of the equation of center (effect of eccentricity)
-    const equationOfCenter = 2 * eccentricity * Math.sin(meanAnomaly * Math.PI / 180) * 180 / Math.PI;
+    // Calculate mean anomaly based on orbital period
+    const meanMotion = 360 / objectInfo.period; // degrees per day
+    const meanAnomaly = (meanMotion * daysSinceJ2000 + objectInfo.phaseOffset) % 360;
     
-    // True anomaly is the mean anomaly plus the equation of center
+    // Simple approximation of the equation of center (accounting for orbital eccentricity)
+    const equationOfCenter = 2 * objectInfo.eccentricity * Math.sin(meanAnomaly * Math.PI / 180);
+    
+    // True anomaly is mean anomaly plus equation of center
     const trueAnomaly = meanAnomaly + equationOfCenter;
     
+    // For simplicity, we'll use the true anomaly as the ecliptic longitude
+    // This is a simplification but should give reasonable results
     return (trueAnomaly + 360) % 360;
+}
+
+// Function to determine which zodiac sign a celestial object is in
+function getZodiacSign(longitude) {
+    for (const sign of ZODIAC_SIGNS) {
+        if (longitude >= sign.start && longitude < sign.end) {
+            return sign;
+        }
+    }
+    // This should never happen, but just in case
+    return ZODIAC_SIGNS[0];
 }
 
 // Draw the base celestial chart
@@ -154,11 +234,49 @@ function drawCelestialChart() {
     
     // Draw orbit circles for each planet
     ctx.lineWidth = 1;
-    ctx.strokeStyle = 'rgba(100, 100, 100, 0.5)'; // Low-contrast gray
+    ctx.strokeStyle = 'rgba(100, 100, 100, 0.15)'; // Low-contrast gray
     
     for (const [objectName, objectInfo] of Object.entries(CELESTIAL_OBJECTS)) {
         ctx.beginPath();
         ctx.arc(centerX, centerY, objectInfo.radius, 0, 2 * Math.PI);
+        ctx.stroke();
+    }
+    
+    // Draw zodiac signs around the outside circle
+    drawZodiacSigns();
+}
+
+// Draw zodiac signs around the outside circle
+function drawZodiacSigns() {
+    const zodiacRadius = maxRadius + 30; // Position just outside the main circle
+    
+    // Draw zodiac symbols
+    ctx.font = '24px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    
+    for (const sign of ZODIAC_SIGNS) {
+        // Calculate the middle angle of the sign's range
+        const middleAngle = ((sign.start + sign.end) / 2) * Math.PI / 180;
+        
+        // Calculate position
+        const x = centerX + zodiacRadius * Math.cos(middleAngle);
+        const y = centerY + zodiacRadius * Math.sin(middleAngle);
+        
+        // Draw the zodiac symbol
+        ctx.fillText(sign.symbol, x, y);
+        
+        // Draw division lines between signs
+        const startAngle = sign.start * Math.PI / 180;
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(
+            centerX + maxRadius * Math.cos(startAngle),
+            centerY + maxRadius * Math.sin(startAngle)
+        );
+        ctx.strokeStyle = 'rgba(5, 150, 190, 0.3)';
+        ctx.lineWidth = 1;
         ctx.stroke();
     }
 }
@@ -278,31 +396,37 @@ function updateCelestialPositions(date) {
     drawCelestialChart();
     
     // Calculate celestial object positions and update the data display
-    const objectPositions = {};
     let objectDataHTML = '';
     const objectData = [];
     
     // First, calculate all positions
     for (const [objectName, objectInfo] of Object.entries(CELESTIAL_OBJECTS)) {
-        // Get ecliptic longitude
-        const longitude = calculateEclipticLongitude(objectName, displayDate);
-        
-        // Store the data for later use
-        objectData.push({
-            name: objectName,
-            info: objectInfo,
-            longitude: longitude
-        });
-        
-        // Update data display HTML
-        objectDataHTML += `
-            <div class="planet-info" style="background-color: ${adjustColor(objectInfo.color, -40)}; border: 1px solid ${adjustColor(objectInfo.color, 20)}">
-                <span class="planet-symbol" style="color: ${objectInfo.color}">${objectInfo.symbol}</span>
-                <strong>${objectInfo.name}</strong>
-                <br>
-                Position: ${longitude.toFixed(1)}°
-            </div>
-        `;
+        try {
+            // Get ecliptic longitude using the astronomy-engine library
+            const longitude = calculateEclipticLongitude(objectName, displayDate);
+            
+            // Store the data for later use
+            objectData.push({
+                name: objectName,
+                info: objectInfo,
+                longitude: longitude
+            });
+            
+            // Get the zodiac sign for this celestial object
+            const zodiacSign = getZodiacSign(longitude);
+            
+            // Update data display HTML
+            objectDataHTML += `
+                <div class="planet-info" style="background-color: ${adjustColor(objectInfo.color, -40)}; border: 1px solid ${adjustColor(objectInfo.color, 20)}">
+                    <span class="planet-symbol" style="color: ${objectInfo.color}">${objectInfo.symbol}</span>
+                    <strong>${objectInfo.name}</strong>
+                    <br>
+                    Sign: ${zodiacSign.symbol} ${zodiacSign.name}
+                </div>
+            `;
+        } catch (error) {
+            console.error(`Error calculating position for ${objectName}:`, error);
+        }
     }
     
     // First, draw all stalks
