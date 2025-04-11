@@ -2,8 +2,8 @@
 // No import needed
 
 // --- Configuration ---
-// Zodiac signs configuration based on IAU Constellation Boundary Crossings
-const ZODIAC_SIGNS = [
+// Zodiac signs configuration based on IAU Constellation Boundary Crossings (true astronomical positions)
+const TRUE_ZODIAC_SIGNS = [
     { symbol: '♈', name: 'Aries', start: 29.0, end: 53.4 },
     { symbol: '♉', name: 'Taurus', start: 53.4, end: 90.4 },
     { symbol: '♊', name: 'Gemini', start: 90.4, end: 118.2 },
@@ -17,6 +17,25 @@ const ZODIAC_SIGNS = [
     { symbol: '♒', name: 'Aquarius', start: 327.8, end: 351.5 },
     { symbol: '♓', name: 'Pisces', start: 351.5, end: 29.0 }
 ];
+
+// Traditional zodiac signs with equal 30° divisions
+const TRADITIONAL_ZODIAC_SIGNS = [
+    { symbol: '♈', name: 'Aries', start: 0, end: 30 },
+    { symbol: '♉', name: 'Taurus', start: 30, end: 60 },
+    { symbol: '♊', name: 'Gemini', start: 60, end: 90 },
+    { symbol: '♋', name: 'Cancer', start: 90, end: 120 },
+    { symbol: '♌', name: 'Leo', start: 120, end: 150 },
+    { symbol: '♍', name: 'Virgo', start: 150, end: 180 },
+    { symbol: '♎', name: 'Libra', start: 180, end: 210 },
+    { symbol: '♏', name: 'Scorpius', start: 210, end: 240 },
+    { symbol: '♐', name: 'Sagittarius', start: 240, end: 270 },
+    { symbol: '♑', name: 'Capricornus', start: 270, end: 300 },
+    { symbol: '♒', name: 'Aquarius', start: 300, end: 330 },
+    { symbol: '♓', name: 'Pisces', start: 330, end: 360 }
+];
+
+// Default to true zodiac signs
+let ZODIAC_SIGNS = TRUE_ZODIAC_SIGNS;
 
 // Celestial objects configuration with improved orbital elements
 const CELESTIAL_OBJECTS = {
@@ -134,36 +153,54 @@ document.addEventListener('DOMContentLoaded', function() {
         updateCelestialPositions(now);
     });
 
+    // True zodiac toggle
+    document.getElementById('true-zodiac-toggle').addEventListener('change', function() {
+        // Toggle between true and traditional zodiac signs
+        if (this.checked) {
+            ZODIAC_SIGNS = TRUE_ZODIAC_SIGNS;
+        } else {
+            ZODIAC_SIGNS = TRADITIONAL_ZODIAC_SIGNS;
+        }
+        
+        // Update the display with the current date
+        const dateInput = document.getElementById('date-picker').value;
+        if (dateInput) {
+            updateCelestialPositions(new Date(dateInput));
+        } else {
+            updateCelestialPositions();
+        }
+    });
+
     // Initial draw on page load
     updateCelestialPositions();
 });
 
 // Corrected function to calculate celestial coordinates using the astronomy-engine library
 function calculateCelestialCoordinates(celestialObject, date) {
-    let observer = new Astronomy.Observer(0, 0, 0); // Observer at the center of the Earth
-    let time = Astronomy.MakeTime(date);
+    let observer = new exports.Observer(0, 0, 0); // Observer at the center of the Earth
+    let time = exports.MakeTime(date);
 
     switch (celestialObject.name.toLowerCase()) {
         case 'moon':
-            return Astronomy.Equator(Astronomy.Body.Moon, time, observer, true, true);
+            return exports.Equator(exports.Body.Moon, time, observer, true, true);
         case 'sun':
-            return Astronomy.Equator(Astronomy.Body.Sun, time, observer, true, true);
+            return exports.Equator(exports.Body.Sun, time, observer, true, true);
         case 'mercury':
-            return Astronomy.Equator(Astronomy.Body.Mercury, time, observer, true, true);
+            return exports.Equator(exports.Body.Mercury, time, observer, true, true);
         case 'venus':
-            return Astronomy.Equator(Astronomy.Body.Venus, time, observer, true, true);
+            return exports.Equator(exports.Body.Venus, time, observer, true, true);
         case 'mars':
-            return Astronomy.Equator(Astronomy.Body.Mars, time, observer, true, true);
+            return exports.Equator(exports.Body.Mars, time, observer, true, true);
         case 'jupiter':
-            return Astronomy.Equator(Astronomy.Body.Jupiter, time, observer, true, true);
+            return exports.Equator(exports.Body.Jupiter, time, observer, true, true);
         case 'saturn':
-            return Astronomy.Equator(Astronomy.Body.Saturn, time, observer, true, true);
+            return exports.Equator(exports.Body.Saturn, time, observer, true, true);
         case 'uranus':
-            return Astronomy.Equator(Astronomy.Body.Uranus, time, observer, true, true);
+            return exports.Equator(exports.Body.Uranus, time, observer, true, true);
         case 'neptune':
-            return Astronomy.Equator(Astronomy.Body.Neptune, time, observer, true, true);
+            return exports.Equator(exports.Body.Neptune, time, observer, true, true);
         case 'pluto':
-            return Astronomy.Equator(Astronomy.Body.Pluto, time, observer, true, true);
+            return exports.Equator(exports.Body.Pluto, time, observer, true, true);
         default:
             throw new Error('Unknown celestial object: ' + celestialObject.name);
     }
@@ -258,12 +295,10 @@ function drawZodiacSigns() {
     for (const sign of ZODIAC_SIGNS) {
         let middleAngle;
         
-        // Special case for Pisces which crosses the 0° boundary
-        if (sign.name === 'Pisces') {
-            // Calculate the middle angle correctly for Pisces
-            // If start > end, it means the sign crosses the 0° boundary
-            // We need to adjust the calculation to get the correct middle angle
-            // For Pisces (351.5° to 29.0°), the middle is around 10.25°
+        // Special case for Pisces which crosses the 0° boundary in TRUE_ZODIAC_SIGNS
+        if (sign.name === 'Pisces' && sign.start > sign.end) {
+            // Calculate the middle angle correctly for Pisces when it crosses the boundary
+            // For Pisces in TRUE_ZODIAC_SIGNS (351.5° to 29.0°), the middle is around 10.25°
             const adjustedEnd = sign.end + 360; // Add 360 to end angle to handle the boundary crossing
             middleAngle = (90 - ((sign.start + adjustedEnd) / 2) % 360) * Math.PI / 180;
         } else {
@@ -415,17 +450,20 @@ function updateCelestialPositions(date) {
     // First, calculate all positions
     for (const [objectName, objectInfo] of Object.entries(CELESTIAL_OBJECTS)) {
         try {
-            // Use the fallback function to calculate positions
-            const longitude = calculateSimplePosition(objectName, displayDate);
+            // Try to use the astronomy library first
+            const equatorial = calculateCelestialCoordinates(objectInfo, displayDate);
+            
+            // Convert right ascension to ecliptic longitude (simplified)
+            // This is a simplification - in reality, the conversion is more complex
+            const longitude = (equatorial.ra * 15) % 360; // RA is in hours, convert to degrees
             
             // Store the data for later use
             objectData.push({
                 name: objectName,
                 info: objectInfo,
                 longitude: longitude,
-                // Placeholder values for RA and Dec
-                rightAscension: 0,
-                declination: 0
+                rightAscension: equatorial.ra,
+                declination: equatorial.dec
             });
             
             // Get the zodiac sign for this celestial object
@@ -433,6 +471,8 @@ function updateCelestialPositions(date) {
             
             // Format coordinates with 2 decimal places
             const formattedLongitude = longitude.toFixed(2);
+            const formattedRA = equatorial.ra.toFixed(2);
+            const formattedDec = equatorial.dec.toFixed(2);
             
             // Calculate GeoVector for Mars
             let geoVectorHTML = '';
@@ -455,16 +495,47 @@ function updateCelestialPositions(date) {
                     <span class="planet-symbol" style="color: ${objectInfo.color}">${objectInfo.symbol}</span>
                     <strong>${objectInfo.name}</strong>
                     <br>
-                    Sign: ${zodiacSign.symbol} ${zodiacSign.name}
+                    ${zodiacSign.symbol} ${zodiacSign.name}
                     <br>
-                    <small>
-                        Lon: ${formattedLongitude}°
-                    </small>
-                    ${geoVectorHTML}
+                    <small>RA: ${formattedRA}h, Dec: ${formattedDec}°</small>
                 </div>
             `;
         } catch (error) {
             console.error(`Error calculating position for ${objectName}:`, error);
+            
+            // Fallback to simple position calculation
+            try {
+                const longitude = calculateSimplePosition(objectName, displayDate);
+                
+                // Store the data for later use
+                objectData.push({
+                    name: objectName,
+                    info: objectInfo,
+                    longitude: longitude,
+                    rightAscension: 0, // Placeholder
+                    declination: 0     // Placeholder
+                });
+                
+                // Get the zodiac sign for this celestial object
+                const zodiacSign = getZodiacSign(longitude);
+                
+                // Format coordinates with 2 decimal places
+                const formattedLongitude = longitude.toFixed(2);
+                
+                // Update data display HTML
+                objectDataHTML += `
+                    <div class="planet-info" style="background-color: ${adjustColor(objectInfo.color, -40)}; border: 1px solid ${adjustColor(objectInfo.color, 20)}">
+                        <span class="planet-symbol" style="color: ${objectInfo.color}">${objectInfo.symbol}</span>
+                        <strong>${objectInfo.name}</strong>
+                        <br>
+                        ${zodiacSign.symbol} ${zodiacSign.name}
+                        <br>
+                        <small>(Using simplified calculation)</small>
+                    </div>
+                `;
+            } catch (fallbackError) {
+                console.error(`Fallback calculation also failed for ${objectName}:`, fallbackError);
+            }
         }
     }
     
@@ -542,4 +613,25 @@ function adjustColor(hex, percent) {
     
     // Convert back to hex
     return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+}
+
+// Function to calculate Mars GeoVector (simplified placeholder)
+function calculateMarsGeoVector(date) {
+    // This is a simplified placeholder function that returns a mock GeoVector
+    // In a real implementation, this would use the astronomy library to calculate
+    // the actual geocentric vector for Mars
+    
+    // Convert date to days since J2000.0 (January 1, 2000, 12:00 UTC)
+    const j2000 = new Date('2000-01-01T12:00:00Z');
+    const daysSinceJ2000 = (date.getTime() - j2000.getTime()) / (1000 * 60 * 60 * 24);
+    
+    // Use a simple sine/cosine function to generate varying values based on the date
+    // This is just for demonstration purposes
+    const angle = (daysSinceJ2000 / 687) * 2 * Math.PI; // Mars orbital period ~687 days
+    
+    return {
+        x: Math.sin(angle) * 1.5,
+        y: Math.cos(angle) * 1.5,
+        z: Math.sin(angle + Math.PI/4) * 0.5
+    };
 }
