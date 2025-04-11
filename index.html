@@ -23,12 +23,18 @@
         <div class="planet-data" id="planet-data">
             <!-- Planet data will be inserted here -->
         </div>
+        <div id="planet-positions" style="display: none;">
+            <!-- Planet positions will be inserted here (hidden) -->
+        </div>
     </div>
 
-    <!-- Load the astronomy-engine library from CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.17/dist/astronomy.js"></script>
+    <!-- Define exports object for astronomy.min.js -->
+    <script src="astronomy-wrapper.js"></script>
     
-    <!-- Load our script as a regular script -->
-    <script src="script.js"></script>
+    <!-- Load the astronomy library -->
+    <script src="astronomy.min.js"></script>
+    
+    <!-- Load our script -->
+    <script src="dist/bundle.js"></script>
 </body>
 </html>

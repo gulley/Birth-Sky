@@ -2,20 +2,20 @@
 // No import needed
 
 // --- Configuration ---
-// Zodiac signs configuration
+// Zodiac signs configuration based on IAU Constellation Boundary Crossings
 const ZODIAC_SIGNS = [
-    { symbol: '♈', name: 'Aries', start: 0, end: 30 },
-    { symbol: '♉', name: 'Taurus', start: 30, end: 60 },
-    { symbol: '♊', name: 'Gemini', start: 60, end: 90 },
-    { symbol: '♋', name: 'Cancer', start: 90, end: 120 },
-    { symbol: '♌', name: 'Leo', start: 120, end: 150 },
-    { symbol: '♍', name: 'Virgo', start: 150, end: 180 },
-    { symbol: '♎', name: 'Libra', start: 180, end: 210 },
-    { symbol: '♏', name: 'Scorpio', start: 210, end: 240 },
-    { symbol: '♐', name: 'Sagittarius', start: 240, end: 270 },
-    { symbol: '♑', name: 'Capricorn', start: 270, end: 300 },
-    { symbol: '♒', name: 'Aquarius', start: 300, end: 330 },
-    { symbol: '♓', name: 'Pisces', start: 330, end: 360 }
+    { symbol: '♈', name: 'Aries', start: 29.0, end: 53.4 },
+    { symbol: '♉', name: 'Taurus', start: 53.4, end: 90.4 },
+    { symbol: '♊', name: 'Gemini', start: 90.4, end: 118.2 },
+    { symbol: '♋', name: 'Cancer', start: 118.2, end: 138.1 },
+    { symbol: '♌', name: 'Leo', start: 138.1, end: 174.1 },
+    { symbol: '♍', name: 'Virgo', start: 174.1, end: 217.8 },
+    { symbol: '♎', name: 'Libra', start: 217.8, end: 241.1 },
+    { symbol: '♏', name: 'Scorpius', start: 241.1, end: 266.5 },
+    { symbol: '♐', name: 'Sagittarius', start: 266.5, end: 299.7 },
+    { symbol: '♑', name: 'Capricornus', start: 299.7, end: 327.8 },
+    { symbol: '♒', name: 'Aquarius', start: 327.8, end: 351.5 },
+    { symbol: '♓', name: 'Pisces', start: 351.5, end: 29.0 }
 ];
 
 // Celestial objects configuration with improved orbital elements
@@ -138,44 +138,34 @@ document.addEventListener('DOMContentLoaded', function() {
     updateCelestialPositions();
 });
 
-// Function to calculate ecliptic longitude using the astronomy-engine library
-function calculateEclipticLongitude(celestialObject, date) {
-    try {
-        // Map our celestial object names to astronomy-engine body names
-        const bodyMap = {
-            'sun': Astronomy.Body.Sun,
-            'moon': Astronomy.Body.Moon,
-            'mercury': Astronomy.Body.Mercury,
-            'venus': Astronomy.Body.Venus,
-            'mars': Astronomy.Body.Mars,
-            'jupiter': Astronomy.Body.Jupiter,
-            'saturn': Astronomy.Body.Saturn
-        };
-        
-        // Get the astronomy-engine body
-        const body = bodyMap[celestialObject];
-        
-        if (!body) {
-            console.error(`Unknown celestial object: ${celestialObject}`);
-            return 0;
-        }
-        
-        // Convert JavaScript Date to Astronomy.Time
-        const time = new Astronomy.Time(date);
-        
-        // Calculate the ecliptic longitude
-        // We use equatorial coordinates and convert to ecliptic
-        const equ = Astronomy.Equator(body, time, false, false);
-        const ecl = Astronomy.Ecliptic(equ);
-        
-        // Return the longitude in degrees (0-360)
-        return (ecl.elon * 180 / Math.PI + 360) % 360;
-    } catch (error) {
-        console.error(`Error calculating position for ${celestialObject}:`, error);
-        
-        // Fallback to a simple calculation based on orbital elements
-        // This is less accurate but will work without the astronomy-engine
-        return calculateSimplePosition(celestialObject, date);
+// Corrected function to calculate celestial coordinates using the astronomy-engine library
+function calculateCelestialCoordinates(celestialObject, date) {
+    let observer = new Astronomy.Observer(0, 0, 0); // Observer at the center of the Earth
+    let time = Astronomy.MakeTime(date);
+
+    switch (celestialObject.name.toLowerCase()) {
+        case 'moon':
+            return Astronomy.Equator(Astronomy.Body.Moon, time, observer, true, true);
+        case 'sun':
+            return Astronomy.Equator(Astronomy.Body.Sun, time, observer, true, true);
+        case 'mercury':
+            return Astronomy.Equator(Astronomy.Body.Mercury, time, observer, true, true);
+        case 'venus':
+            return Astronomy.Equator(Astronomy.Body.Venus, time, observer, true, true);
+        case 'mars':
+            return Astronomy.Equator(Astronomy.Body.Mars, time, observer, true, true);
+        case 'jupiter':
+            return Astronomy.Equator(Astronomy.Body.Jupiter, time, observer, true, true);
+        case 'saturn':
+            return Astronomy.Equator(Astronomy.Body.Saturn, time, observer, true, true);
+        case 'uranus':
+            return Astronomy.Equator(Astronomy.Body.Uranus, time, observer, true, true);
+        case 'neptune':
+            return Astronomy.Equator(Astronomy.Body.Neptune, time, observer, true, true);
+        case 'pluto':
+            return Astronomy.Equator(Astronomy.Body.Pluto, time, observer, true, true);
+        default:
+            throw new Error('Unknown celestial object: ' + celestialObject.name);
     }
 }
 
@@ -204,12 +194,21 @@ function calculateSimplePosition(celestialObject, date) {
 
 // Function to determine which zodiac sign a celestial object is in
 function getZodiacSign(longitude) {
+    // Special case for Pisces which crosses the 0° boundary
+    const pisces = ZODIAC_SIGNS[11]; // Pisces is the last sign in our array
+    if ((longitude >= pisces.start && longitude < 360) || (longitude >= 0 && longitude < pisces.end)) {
+        return pisces;
+    }
+    
+    // For all other signs
     for (const sign of ZODIAC_SIGNS) {
         if (longitude >= sign.start && longitude < sign.end) {
             return sign;
         }
     }
+    
     // This should never happen, but just in case
+    console.error(`Could not determine zodiac sign for longitude: ${longitude}`);
     return ZODIAC_SIGNS[0];
 }
 
@@ -257,23 +256,36 @@ function drawZodiacSigns() {
     ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
     
     for (const sign of ZODIAC_SIGNS) {
-        // Calculate the middle angle of the sign's range
-        const middleAngle = ((sign.start + sign.end) / 2) * Math.PI / 180;
+        let middleAngle;
+        
+        // Special case for Pisces which crosses the 0° boundary
+        if (sign.name === 'Pisces') {
+            // Calculate the middle angle correctly for Pisces
+            // If start > end, it means the sign crosses the 0° boundary
+            // We need to adjust the calculation to get the correct middle angle
+            // For Pisces (351.5° to 29.0°), the middle is around 10.25°
+            const adjustedEnd = sign.end + 360; // Add 360 to end angle to handle the boundary crossing
+            middleAngle = (90 - ((sign.start + adjustedEnd) / 2) % 360) * Math.PI / 180;
+        } else {
+            // For all other signs, calculate the middle angle normally
+            middleAngle = (90 - ((sign.start + sign.end) / 2)) * Math.PI / 180;
+        }
         
         // Calculate position
         const x = centerX + zodiacRadius * Math.cos(middleAngle);
-        const y = centerY + zodiacRadius * Math.sin(middleAngle);
+        const y = centerY - zodiacRadius * Math.sin(middleAngle);
         
         // Draw the zodiac symbol
         ctx.fillText(sign.symbol, x, y);
         
         // Draw division lines between signs
-        const startAngle = sign.start * Math.PI / 180;
+        // Adjust angle: 0° at top, going clockwise
+        const startAngle = (90 - sign.start) * Math.PI / 180;
         ctx.beginPath();
         ctx.moveTo(centerX, centerY);
         ctx.lineTo(
             centerX + maxRadius * Math.cos(startAngle),
-            centerY + maxRadius * Math.sin(startAngle)
+            centerY - maxRadius * Math.sin(startAngle)
         );
         ctx.strokeStyle = 'rgba(5, 150, 190, 0.3)';
         ctx.lineWidth = 1;
@@ -310,11 +322,12 @@ function drawCelestialMedallion(objectName, longitude, radius) {
     const objectInfo = CELESTIAL_OBJECTS[objectName];
     
     // Convert longitude to radians for positioning
-    const radians = longitude * Math.PI / 180;
+    // Adjust angle: 0° at top, going clockwise
+    const radians = (90 - longitude) * Math.PI / 180;
     
     // Calculate x and y coordinates
     const x = centerX + radius * Math.cos(radians);
-    const y = centerY + radius * Math.sin(radians);
+    const y = centerY - radius * Math.sin(radians);
     
     // Draw medallion glow
     const glowRadius = 25;
@@ -402,18 +415,39 @@ function updateCelestialPositions(date) {
     // First, calculate all positions
     for (const [objectName, objectInfo] of Object.entries(CELESTIAL_OBJECTS)) {
         try {
-            // Get ecliptic longitude using the astronomy-engine library
-            const longitude = calculateEclipticLongitude(objectName, displayDate);
+            // Use the fallback function to calculate positions
+            const longitude = calculateSimplePosition(objectName, displayDate);
             
             // Store the data for later use
             objectData.push({
                 name: objectName,
                 info: objectInfo,
-                longitude: longitude
+                longitude: longitude,
+                // Placeholder values for RA and Dec
+                rightAscension: 0,
+                declination: 0
             });
             
             // Get the zodiac sign for this celestial object
             const zodiacSign = getZodiacSign(longitude);
+            
+            // Format coordinates with 2 decimal places
+            const formattedLongitude = longitude.toFixed(2);
+            
+            // Calculate GeoVector for Mars
+            let geoVectorHTML = '';
+            if (objectName === 'mars') {
+                const geoVector = calculateMarsGeoVector(displayDate);
+                geoVectorHTML = `
+                    <br>
+                    <small>
+                        GeoVector:<br>
+                        x: ${geoVector.x.toFixed(4)}<br>
+                        y: ${geoVector.y.toFixed(4)}<br>
+                        z: ${geoVector.z.toFixed(4)}
+                    </small>
+                `;
+            }
             
             // Update data display HTML
             objectDataHTML += `
@@ -422,6 +456,11 @@ function updateCelestialPositions(date) {
                     <strong>${objectInfo.name}</strong>
                     <br>
                     Sign: ${zodiacSign.symbol} ${zodiacSign.name}
+                    <br>
+                    <small>
+                        Lon: ${formattedLongitude}°
+                    </small>
+                    ${geoVectorHTML}
                 </div>
             `;
         } catch (error) {
@@ -444,16 +483,38 @@ function updateCelestialPositions(date) {
     
     // Update celestial object data display
     document.getElementById('planet-data').innerHTML = objectDataHTML;
+    
+    // Calculate planet positions
+    const planetPositions = calculatePlanetPositions(displayDate);
+    let planetPositionsHTML = '';
+    planetPositions.forEach(planet => {
+        planetPositionsHTML += `<div>${planet.name}: ${planet.position.x.toFixed(2)}, ${planet.position.y.toFixed(2)}, ${planet.position.z.toFixed(2)}</div>`;
+    });
+    document.getElementById('planet-positions').innerHTML = planetPositionsHTML;
+}
+
+// Function to calculate heliocentric positions of planets
+function calculatePlanetPositions(date) {
+    // Return placeholder positions for planets
+    const planets = ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto'];
+    return planets.map(planet => {
+        return {
+            name: planet,
+            position: { x: 0, y: 0, z: 0 }, // Placeholder position vector
+            velocity: { x: 0, y: 0, z: 0 }  // Placeholder velocity vector
+        };
+    });
 }
 
 // Draw just the stalk for a celestial object
 function drawCelestialStalk(objectName, longitude, radius, color) {
     // Convert longitude to radians for positioning
-    const radians = longitude * Math.PI / 180;
+    // Adjust angle: 0° at top, going clockwise
+    const radians = (90 - longitude) * Math.PI / 180;
     
     // Calculate x and y coordinates
     const x = centerX + radius * Math.cos(radians);
-    const y = centerY + radius * Math.sin(radians);
+    const y = centerY - radius * Math.sin(radians);
     
     // Draw stalk from center to medallion
     ctx.beginPath();
