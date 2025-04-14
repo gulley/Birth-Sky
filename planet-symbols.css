@@ -3,6 +3,7 @@
     src: url('fonts/Astronomicon.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
+    font-display: swap; /* Use swap to prevent FOIT (Flash of Invisible Text) */
 }
 
 .planet-symbol {

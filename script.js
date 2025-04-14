@@ -49,7 +49,7 @@ const CELESTIAL_OBJECTS = {
         eccentricity: 0.0549,
         inclination: 5.145,
         color: '#d1d1d1',
-        radius: 50
+        radius: 60
     },
     'sun': { 
         symbol: '☉',  // Unicode fallback
@@ -140,10 +140,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const now = new Date();
     const dateString = now.toISOString().slice(0, 16); // Format: YYYY-MM-DDThh:mm
     document.getElementById('date-picker').value = dateString;
+    
+    // Load the custom font before rendering
+    loadCustomFont();
 
-    // Update button - use selected date
-    document.getElementById('update-btn').addEventListener('click', function() {
-        const dateInput = document.getElementById('date-picker').value;
+    // Update immediately when date picker changes
+    document.getElementById('date-picker').addEventListener('change', function() {
+        const dateInput = this.value;
         if (dateInput) {
             const selectedDate = new Date(dateInput);
             updateCelestialPositions(selectedDate);
@@ -762,6 +765,50 @@ function adjustColor(hex, percent) {
     
     // Convert back to hex
     return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+}
+
+// Function to load the custom font before rendering
+function loadCustomFont() {
+    // Create a font loading promise
+    const fontPromise = new Promise((resolve, reject) => {
+        // Create a test span to check if the font is loaded
+        const testSpan = document.createElement('span');
+        testSpan.style.fontFamily = 'PlanetarySymbols, Arial';
+        testSpan.style.fontSize = '24px';
+        testSpan.style.visibility = 'hidden';
+        testSpan.textContent = 'Q'; // Use a character from the font
+        
+        document.body.appendChild(testSpan);
+        
+        // Use FontFaceObserver if available, otherwise use a timeout approach
+        if (typeof FontFaceObserver !== 'undefined') {
+            const observer = new FontFaceObserver('PlanetarySymbols');
+            observer.load().then(() => {
+                document.body.removeChild(testSpan);
+                resolve();
+            }).catch(err => {
+                console.warn('Font loading failed, using fallback:', err);
+                document.body.removeChild(testSpan);
+                resolve(); // Resolve anyway to continue with fallback
+            });
+        } else {
+            // Fallback: check if the font is loaded after a short delay
+            setTimeout(() => {
+                document.body.removeChild(testSpan);
+                resolve();
+            }, 500); // Wait 500ms for the font to load
+        }
+    });
+    
+    // Wait for the font to load, then render
+    fontPromise.then(() => {
+        // Initial draw after font is loaded
+        updateCelestialPositions();
+    }).catch(err => {
+        console.error('Error loading font:', err);
+        // Render anyway with fallback fonts
+        updateCelestialPositions();
+    });
 }
 
 // Function to calculate Mars GeoVector (simplified placeholder)
