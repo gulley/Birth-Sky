@@ -231,13 +231,15 @@ function calculateSimplePosition(celestialObject, date) {
 
 // Function to determine which zodiac sign a celestial object is in
 function getZodiacSign(longitude) {
-    // Special case for Pisces which crosses the 0° boundary
-    const pisces = ZODIAC_SIGNS[11]; // Pisces is the last sign in our array
-    if ((longitude >= pisces.start && longitude < 360) || (longitude >= 0 && longitude < pisces.end)) {
-        return pisces;
+    // Special case for Pisces in TRUE_ZODIAC_SIGNS which crosses the 0° boundary
+    if (ZODIAC_SIGNS === TRUE_ZODIAC_SIGNS) {
+        const pisces = ZODIAC_SIGNS[11]; // Pisces is the last sign in our array
+        if ((longitude >= pisces.start && longitude < 360) || (longitude >= 0 && longitude < pisces.end)) {
+            return pisces;
+        }
     }
     
-    // For all other signs
+    // For all other signs or when using traditional zodiac
     for (const sign of ZODIAC_SIGNS) {
         if (longitude >= sign.start && longitude < sign.end) {
             return sign;
