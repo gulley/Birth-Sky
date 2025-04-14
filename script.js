@@ -573,8 +573,6 @@ function colorToRgb(hex) {
 function updateCelestialPositions(date) {
     // Use provided date or current time
     const displayDate = date || new Date();
-    const utcString = displayDate.toUTCString();
-    document.getElementById('current-time').textContent = utcString;
     
     // Draw the base chart (without Earth)
     drawCelestialChart();

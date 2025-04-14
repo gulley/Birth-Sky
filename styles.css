@@ -106,11 +106,6 @@ button:hover {
     box-shadow: 0 0 8px rgba(7, 182, 230, 0.5);
 }
 
-#current-time {
-    display: block;
-    margin-top: 10px;
-    color: #79c0d5;
-}
 
 .zodiac-controls {
     display: flex;
