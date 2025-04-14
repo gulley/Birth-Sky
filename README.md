@@ -2,6 +2,9 @@
 
 This application calculates and displays the positions of 7 celestial objects (Sun, Moon, Mercury, Venus, Mars, Jupiter, and Saturn) in a visually appealing zodiac chart. It shows their Right Ascension (RA), Declination (Dec), and zodiac sign positions.
 
+## Run This Now
+[Birth Sky](https://gulley.github.io/Birth-Sky/)
+
 ## Features
 
 - Calculates precise RA, Dec, and ecliptic coordinates using the astronomy-engine library
