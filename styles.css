@@ -1,17 +1,22 @@
 body {
     font-family: Arial, sans-serif;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 20px;
+    margin: 0;
+    padding: 0;
     background-color: #021019;
     color: #e0f0ff;
 }
 
 .container {
     background-color: #032530;
-    border-radius: 8px;
     padding: 20px;
-    box-shadow: 0 2px 20px rgba(0,150,200,0.3);
+    min-height: 100vh;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.content-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
 }
 
 h1 {

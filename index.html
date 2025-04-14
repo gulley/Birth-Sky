@@ -9,29 +9,31 @@
 </head>
 <body>
     <div class="container">
-        <h1>Birth Sky</h1>
-        <div class="controls">
-            <div class="date-time-controls">
-                <input type="datetime-local" id="date-picker" class="date-picker">
-                <button id="update-btn">Update</button>
-                <button id="current-time-btn">Use Current Time</button>
+        <div class="content-wrapper">
+            <h1>Birth Sky</h1>
+            <div class="controls">
+                <div class="date-time-controls">
+                    <input type="datetime-local" id="date-picker" class="date-picker">
+                    <button id="update-btn">Update</button>
+                    <button id="current-time-btn">Use Current Time</button>
+                </div>
+                <div class="zodiac-controls">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="true-zodiac-toggle" checked>
+                        <span class="checkbox-label">Use true zodiac</span>
+                    </label>
+                </div>
+                <span id="current-time"></span>
             </div>
-            <div class="zodiac-controls">
-                <label class="checkbox-container">
-                    <input type="checkbox" id="true-zodiac-toggle" checked>
-                    <span class="checkbox-label">Use true zodiac</span>
-                </label>
+            <div class="canvas-container">
+                <canvas id="planet-chart" width="600" height="600"></canvas>
             </div>
-            <span id="current-time"></span>
-        </div>
-        <div class="canvas-container">
-            <canvas id="planet-chart" width="600" height="600"></canvas>
-        </div>
-        <div class="planet-data" id="planet-data">
-            <!-- Planet data will be inserted here -->
-        </div>
-        <div id="planet-positions" style="display: none;">
-            <!-- Planet positions will be inserted here (hidden) -->
+            <div class="planet-data" id="planet-data">
+                <!-- Planet data will be inserted here -->
+            </div>
+            <div id="planet-positions" style="display: none;">
+                <!-- Planet positions will be inserted here (hidden) -->
+            </div>
         </div>
     </div>
 

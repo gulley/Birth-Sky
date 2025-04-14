@@ -202,12 +202,6 @@ function calculateCelestialCoordinates(celestialObject, date) {
             return exports.Equator(exports.Body.Jupiter, time, observer, true, true);
         case 'saturn':
             return exports.Equator(exports.Body.Saturn, time, observer, true, true);
-        case 'uranus':
-            return exports.Equator(exports.Body.Uranus, time, observer, true, true);
-        case 'neptune':
-            return exports.Equator(exports.Body.Neptune, time, observer, true, true);
-        case 'pluto':
-            return exports.Equator(exports.Body.Pluto, time, observer, true, true);
         default:
             throw new Error('Unknown celestial object: ' + celestialObject.name);
     }
@@ -272,7 +266,7 @@ function drawCelestialChart() {
     
     // Draw main celestial ring
     ctx.strokeStyle = '#0596be';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 4;
     ctx.beginPath();
     ctx.arc(centerX, centerY, maxRadius, 0, 2 * Math.PI);
     ctx.stroke();
@@ -432,7 +426,7 @@ function drawCelestialMedallion(objectName, longitude, radius) {
     
     // Draw medallion rim
     ctx.strokeStyle = objectInfo.color;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 4;
     ctx.beginPath();
     ctx.arc(x, y, glowRadius, 0, 2 * Math.PI);
     ctx.stroke();
@@ -637,8 +631,8 @@ function drawCelestialStalk(objectName, longitude, radius, color) {
     ctx.beginPath();
     ctx.moveTo(centerX, centerY);
     ctx.lineTo(x, y);
-    ctx.strokeStyle = `rgba(${colorToRgb(color)}, 0.7)`;
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(150, 150, 150, 0.7)'; // Medium gray color for all stalks
+    ctx.lineWidth = 4;
     ctx.stroke();
 }
 
