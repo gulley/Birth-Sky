@@ -1,0 +1,13 @@
+@font-face {
+    font-family: 'PlanetarySymbols';
+    src: url('fonts/Astronomicon.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.planet-symbol {
+    font-family: 'PlanetarySymbols', Arial, sans-serif;
+    font-size: 24px;
+    display: block;
+    margin-bottom: 5px;
+}

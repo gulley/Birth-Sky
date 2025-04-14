@@ -40,7 +40,8 @@ let ZODIAC_SIGNS = TRUE_ZODIAC_SIGNS;
 // Celestial objects configuration with improved orbital elements
 const CELESTIAL_OBJECTS = {
     'moon': { 
-        symbol: '☽', 
+        symbol: '☽',  // Unicode fallback
+        customSymbol: getPlanetSymbol('moon'),
         name: 'Moon', 
         // Lunar orbital elements (simplified)
         period: 27.321582, 
@@ -51,7 +52,8 @@ const CELESTIAL_OBJECTS = {
         radius: 50
     },
     'sun': { 
-        symbol: '☉', 
+        symbol: '☉',  // Unicode fallback
+        customSymbol: getPlanetSymbol('sun'),
         name: 'Sun', 
         // Earth's orbital elements (for Sun's apparent motion)
         period: 365.256363, 
@@ -62,7 +64,8 @@ const CELESTIAL_OBJECTS = {
         radius: 100
     },
     'mercury': { 
-        symbol: '☿', 
+        symbol: '☿',  // Unicode fallback
+        customSymbol: getPlanetSymbol('mercury'),
         name: 'Mercury', 
         // Mercury's orbital elements
         period: 87.9691, 
@@ -73,7 +76,8 @@ const CELESTIAL_OBJECTS = {
         radius: 150
     },
     'venus': { 
-        symbol: '♀', 
+        symbol: '♀',  // Unicode fallback
+        customSymbol: getPlanetSymbol('venus'),
         name: 'Venus', 
         // Venus's orbital elements
         period: 224.7008, 
@@ -84,7 +88,8 @@ const CELESTIAL_OBJECTS = {
         radius: 170
     },
     'mars': { 
-        symbol: '♂', 
+        symbol: '♂',  // Unicode fallback
+        customSymbol: getPlanetSymbol('mars'),
         name: 'Mars', 
         // Mars's orbital elements
         period: 686.9796, 
@@ -95,7 +100,8 @@ const CELESTIAL_OBJECTS = {
         radius: 190
     },
     'jupiter': { 
-        symbol: '♃', 
+        symbol: '♃',  // Unicode fallback
+        customSymbol: getPlanetSymbol('jupiter'),
         name: 'Jupiter', 
         // Jupiter's orbital elements
         period: 4332.59, 
@@ -106,7 +112,8 @@ const CELESTIAL_OBJECTS = {
         radius: 210
     },
     'saturn': { 
-        symbol: '♄', 
+        symbol: '♄',  // Unicode fallback
+        customSymbol: getPlanetSymbol('saturn'),
         name: 'Saturn', 
         // Saturn's orbital elements
         period: 10759.22, 
@@ -289,7 +296,6 @@ function drawZodiacSigns() {
     const zodiacRadius = maxRadius + 30; // Position just outside the main circle
     
     // Draw zodiac symbols
-    ctx.font = '24px Arial';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
@@ -312,8 +318,17 @@ function drawZodiacSigns() {
         const x = centerX + zodiacRadius * Math.cos(middleAngle);
         const y = centerY - zodiacRadius * Math.sin(middleAngle);
         
+        // Get custom zodiac symbol if available
+        const customSymbol = ZODIAC_SYMBOL_MAP[sign.name];
+        
         // Draw the zodiac symbol
-        ctx.fillText(sign.symbol, x, y);
+        if (customSymbol) {
+            ctx.font = '24px PlanetarySymbols, Arial';
+            ctx.fillText(customSymbol, x, y);
+        } else {
+            ctx.font = '24px Arial';
+            ctx.fillText(sign.symbol, x, y);
+        }
         
         // Draw division lines between signs
         // Adjust angle: 0° at top, going clockwise
@@ -348,10 +363,18 @@ function drawEarthMedallion() {
     
     // Add Earth symbol at the center
     ctx.fillStyle = '#ffffff';
-    ctx.font = '24px Arial';
+    
+    // Use custom font if available, otherwise fallback to Unicode symbol
+    const earthSymbol = getPlanetSymbol('earth') || '⊕';
+    if (getPlanetSymbol('earth')) {
+        ctx.font = '24px PlanetarySymbols, Arial';
+    } else {
+        ctx.font = '24px Arial';
+    }
+    
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('⊕', centerX, centerY);
+    ctx.fillText(earthSymbol, centerX, centerY);
 }
 
 // Draw celestial object medallion
@@ -416,10 +439,15 @@ function drawCelestialMedallion(objectName, longitude, radius) {
     
     // Draw celestial object symbol
     ctx.fillStyle = objectName === 'sun' || objectName === 'moon' ? '#000000' : '#ffffff';
-    ctx.font = '24px Arial';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(objectInfo.symbol, x, y);
+    
+    // Use custom font if available, otherwise fallback to Unicode symbol
+    if (objectInfo.customSymbol) {
+        ctx.font = '24px PlanetarySymbols, Arial';
+        ctx.fillText(objectInfo.customSymbol, x, y);
+    } else {
+        ctx.font = '24px Arial';
+        ctx.fillText(objectInfo.symbol, x, y);
+    }
 }
 
 // Helper function to convert hex color to RGB
@@ -491,13 +519,21 @@ function updateCelestialPositions(date) {
                 `;
             }
             
+            // Get custom zodiac symbol if available
+            const customZodiacSymbol = ZODIAC_SYMBOL_MAP[zodiacSign.name];
+            
             // Update data display HTML
             objectDataHTML += `
                 <div class="planet-info" style="background-color: ${adjustColor(objectInfo.color, -40)}; border: 1px solid ${adjustColor(objectInfo.color, 20)}">
-                    <span class="planet-symbol" style="color: ${objectInfo.color}">${objectInfo.symbol}</span>
+                    <span class="planet-symbol" style="color: ${objectInfo.color}">
+                        ${objectInfo.customSymbol || objectInfo.symbol}
+                    </span>
                     <strong>${objectInfo.name}</strong>
                     <br>
-                    ${zodiacSign.symbol} ${zodiacSign.name}
+                    <span class="${customZodiacSymbol ? 'planet-symbol' : ''}" style="font-size: 18px;">
+                        ${customZodiacSymbol || zodiacSign.symbol}
+                    </span> 
+                    ${zodiacSign.name}
                     <br>
                     <small>RA: ${formattedRA}h, Dec: ${formattedDec}°</small>
                 </div>
@@ -524,13 +560,21 @@ function updateCelestialPositions(date) {
                 // Format coordinates with 2 decimal places
                 const formattedLongitude = longitude.toFixed(2);
                 
+                // Get custom zodiac symbol if available
+                const customZodiacSymbol = ZODIAC_SYMBOL_MAP[zodiacSign.name];
+                
                 // Update data display HTML
                 objectDataHTML += `
                     <div class="planet-info" style="background-color: ${adjustColor(objectInfo.color, -40)}; border: 1px solid ${adjustColor(objectInfo.color, 20)}">
-                        <span class="planet-symbol" style="color: ${objectInfo.color}">${objectInfo.symbol}</span>
+                        <span class="planet-symbol" style="color: ${objectInfo.color}">
+                            ${objectInfo.customSymbol || objectInfo.symbol}
+                        </span>
                         <strong>${objectInfo.name}</strong>
                         <br>
-                        ${zodiacSign.symbol} ${zodiacSign.name}
+                        <span class="${customZodiacSymbol ? 'planet-symbol' : ''}" style="font-size: 18px;">
+                            ${customZodiacSymbol || zodiacSign.symbol}
+                        </span> 
+                        ${zodiacSign.name}
                         <br>
                         <small>(Using simplified calculation)</small>
                     </div>
