@@ -59,9 +59,28 @@ export function getZodiacSign(longitude, zodiacSigns = ZODIAC_SIGNS) {
         }
     }
     
-    // This should never happen, but just in case
-    console.error(`Could not determine zodiac sign for longitude: ${longitude}`);
-    return zodiacSigns[0];
+    // If we couldn't find a sign, it might be due to floating point precision issues
+    // during animation. Find the closest sign.
+    console.warn(`Could not determine exact zodiac sign for longitude: ${longitude}, finding closest`);
+    
+    // Default to Aries for traditional zodiac
+    if (zodiacSigns === TRADITIONAL_ZODIAC_SIGNS) {
+        return zodiacSigns[0]; // Aries
+    }
+    
+    // For true zodiac, check if it's close to Pisces boundary
+    if (longitude < 30) {
+        return zodiacSigns[11]; // Pisces
+    } else {
+        // Find the closest sign
+        for (const sign of zodiacSigns) {
+            if (Math.abs(longitude - sign.start) < 1 || Math.abs(longitude - sign.end) < 1) {
+                return sign;
+            }
+        }
+        // If all else fails, return Aries
+        return zodiacSigns[0];
+    }
 }
 
 /**

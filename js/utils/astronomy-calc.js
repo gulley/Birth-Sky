@@ -35,35 +35,6 @@ export function calculateCelestialCoordinates(celestialObject, date) {
 }
 
 /**
- * Calculate approximate positions based on orbital elements (fallback method)
- * @param {string} celestialObject - The name of the celestial object
- * @param {Date} date - The date to calculate for
- * @param {Object} objectsConfig - The celestial objects configuration
- * @returns {number} The longitude in degrees
- */
-export function calculateSimplePosition(celestialObject, date, objectsConfig) {
-    const objectInfo = objectsConfig[celestialObject];
-    
-    // Convert date to days since J2000.0 (January 1, 2000, 12:00 UTC)
-    const j2000 = new Date('2000-01-01T12:00:00Z');
-    const daysSinceJ2000 = (date.getTime() - j2000.getTime()) / (1000 * 60 * 60 * 24);
-    
-    // Calculate mean anomaly based on orbital period
-    const meanMotion = 360 / objectInfo.period; // degrees per day
-    const meanAnomaly = (meanMotion * daysSinceJ2000 + objectInfo.phaseOffset) % 360;
-    
-    // Simple approximation of the equation of center (accounting for orbital eccentricity)
-    const equationOfCenter = 2 * objectInfo.eccentricity * Math.sin(meanAnomaly * Math.PI / 180);
-    
-    // True anomaly is mean anomaly plus equation of center
-    const trueAnomaly = meanAnomaly + equationOfCenter;
-    
-    // For simplicity, we'll use the true anomaly as the ecliptic longitude
-    // This is a simplification but should give reasonable results
-    return (trueAnomaly + 360) % 360;
-}
-
-/**
  * Calculate Mars GeoVector (simplified placeholder)
  * @param {Date} date - The date to calculate for
  * @returns {Object} The geocentric vector

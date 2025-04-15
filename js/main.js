@@ -4,10 +4,10 @@
 
 import { ZODIAC_SIGNS, getZodiacSign } from './config/zodiac-config.js';
 import { CELESTIAL_OBJECTS, getCelestialObject } from './config/celestial-config.js';
-import { calculateCelestialCoordinates, calculateSimplePosition, calculateMarsGeoVector, calculatePlanetPositions } from './utils/astronomy-calc.js';
+import { calculateCelestialCoordinates, calculateMarsGeoVector, calculatePlanetPositions } from './utils/astronomy-calc.js';
 import { adjustColor } from './utils/color-helpers.js';
 import { loadCustomFont } from './utils/font-loader.js';
-import { initializeCanvas, drawCelestialChart, drawOrbitCircles } from './drawing/chart-base.js';
+import { initializeCanvas, drawCelestialChart, drawOrbitCircles, drawZodiacSigns } from './drawing/chart-base.js';
 import { drawEarthMedallion, drawCelestialMedallion, drawCelestialStalk } from './drawing/medallions.js';
 import { startZodiacTransition, isZodiacAnimating, cancelZodiacTransition } from './animation/zodiac-transition.js';
 import { ZODIAC_SYMBOL_MAP } from '../planet-symbols.js';
@@ -82,12 +82,6 @@ function updateCelestialPositions(date) {
     // Use provided date or current time
     const displayDate = date || new Date();
     
-    // Draw the base chart
-    drawCelestialChart(ZODIAC_SIGNS);
-    
-    // Draw orbit circles
-    drawOrbitCircles(CELESTIAL_OBJECTS);
-    
     // Calculate celestial object positions and update the data display
     let objectDataHTML = '';
     const objectData = [];
@@ -141,55 +135,52 @@ function updateCelestialPositions(date) {
         } catch (error) {
             console.error(`Error calculating position for ${objectName}:`, error);
             
-            // Fallback to simple position calculation
-            try {
-                const longitude = calculateSimplePosition(objectName, displayDate, CELESTIAL_OBJECTS);
-                
-                // Store the data for later use
-                objectData.push({
-                    name: objectName,
-                    info: objectInfo,
-                    longitude: longitude,
-                    rightAscension: 0, // Placeholder
-                    declination: 0     // Placeholder
-                });
-                
-                // Get the zodiac sign for this celestial object
-                const zodiacSign = getZodiacSign(longitude);
-                
-                // Format coordinates with 2 decimal places
-                const formattedLongitude = longitude.toFixed(2);
-                
-                // Get custom zodiac symbol if available
-                const customZodiacSymbol = ZODIAC_SYMBOL_MAP[zodiacSign.name];
-                
-                // Update data display HTML
-                objectDataHTML += `
-                    <div class="planet-info" style="background-color: ${adjustColor(objectInfo.color, -40)}; border: 1px solid ${adjustColor(objectInfo.color, 20)}">
-                        <span class="planet-symbol" style="color: ${objectInfo.color}">
-                            ${objectInfo.customSymbol || objectInfo.symbol}
-                        </span>
-                        <strong>${objectInfo.name}</strong>
-                        <br>
-                        <span class="${customZodiacSymbol ? 'planet-symbol' : ''}" style="font-size: 18px;">
-                            ${customZodiacSymbol || zodiacSign.symbol}
-                        </span> 
-                        ${zodiacSign.name}
-                        <br>
-                        <small>(Using simplified calculation)</small>
-                    </div>
-                `;
-            } catch (fallbackError) {
-                console.error(`Fallback calculation also failed for ${objectName}:`, fallbackError);
-            }
+            // Use a default position for the object (0 degrees)
+            const defaultLongitude = 0;
+            
+            // Store the data with default values
+            objectData.push({
+                name: objectName,
+                info: objectInfo,
+                longitude: defaultLongitude,
+                rightAscension: 0,
+                declination: 0
+            });
+            
+            // Get the zodiac sign for this default position
+            const zodiacSign = getZodiacSign(defaultLongitude);
+            
+            // Get custom zodiac symbol if available
+            const customZodiacSymbol = ZODIAC_SYMBOL_MAP[zodiacSign.name];
+            
+            // Update data display HTML with error indication
+            objectDataHTML += `
+                <div class="planet-info" style="background-color: ${adjustColor(objectInfo.color, -40)}; border: 1px solid ${adjustColor(objectInfo.color, 20)}">
+                    <span class="planet-symbol" style="color: ${objectInfo.color}">
+                        ${objectInfo.customSymbol || objectInfo.symbol}
+                    </span>
+                    <strong>${objectInfo.name}</strong>
+                    <br>
+                    <span class="${customZodiacSymbol ? 'planet-symbol' : ''}" style="font-size: 18px;">
+                        ${customZodiacSymbol || zodiacSign.symbol}
+                    </span> 
+                    ${zodiacSign.name}
+                    <br>
+                    <small>(Calculation error)</small>
+                </div>
+            `;
         }
     }
     
-    // First, draw all stalks
-    for (const object of objectData) {
-        drawCelestialStalk(object.name, object.longitude, object.info.radius, object.info.color);
-    }
+    // Draw the base chart with stalks
+    drawCelestialChart(ZODIAC_SIGNS, objectData);
     
+    // Draw orbit circles
+    drawOrbitCircles(CELESTIAL_OBJECTS);
+    
+    // Draw zodiac ring
+    drawZodiacSigns(ZODIAC_SIGNS);
+
     // Then, draw Earth medallion and all planet medallions on top of stalks
     drawEarthMedallion();
     

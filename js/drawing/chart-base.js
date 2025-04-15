@@ -3,6 +3,7 @@
  */
 
 import { ZODIAC_SYMBOL_MAP } from '../../planet-symbols.js';
+import { drawCelestialStalk } from './medallions.js';
 
 // Canvas context and dimensions
 let canvas, ctx, centerX, centerY, maxRadius;
@@ -34,30 +35,33 @@ export function getCanvasContext() {
  * Draw the base celestial chart
  * @param {Array} zodiacSigns - The zodiac signs array to use
  */
-export function drawCelestialChart(zodiacSigns) {
+export function drawCelestialChart(zodiacSigns, objectData) {
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Draw outer dark blue ring
-    const outerRingWidth = 15;
-    ctx.fillStyle = '#021019';
+    // Draw stalks first so they go behind the zodiac ring
+    for (const object of objectData) {
+        drawCelestialStalk(object.name, object.longitude, object.info.radius, object.info.color);
+    }
+
+    // Draw opaque circle to mask stalks behind zodiac ring
+    ctx.fillStyle = '#000000';
     ctx.beginPath();
-    ctx.arc(centerX, centerY, maxRadius + outerRingWidth, 0, 2 * Math.PI);
+    ctx.arc(centerX, centerY, 85, 0, 2 * Math.PI);
     ctx.fill();
-    
-    // Draw main celestial ring
+
+    // Draw blue celestial ring between zodiac and moon
     ctx.strokeStyle = '#0596be';
     ctx.lineWidth = 4;
     ctx.beginPath();
-    ctx.arc(centerX, centerY, maxRadius, 0, 2 * Math.PI);
+    ctx.arc(centerX, centerY, 80, 0, 2 * Math.PI);
     ctx.stroke();
     
     // Draw orbit circles for each planet
     ctx.lineWidth = 1;
     ctx.strokeStyle = 'rgba(100, 100, 100, 0.15)'; // Low-contrast gray
     
-    // Draw zodiac signs around the outside circle
-    drawZodiacSigns(zodiacSigns);
+    // Zodiac signs will be drawn later to layer above stalks
 }
 
 /**
@@ -65,7 +69,7 @@ export function drawCelestialChart(zodiacSigns) {
  * @param {Array} zodiacSigns - The zodiac signs array to use
  */
 export function drawZodiacSigns(zodiacSigns) {
-    const zodiacRadius = maxRadius + 30; // Position just outside the main circle
+    const zodiacRadius = 60; // Position inside the moon's orbit
     
     // Draw zodiac symbols
     ctx.textAlign = 'center';
