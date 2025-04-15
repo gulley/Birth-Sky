@@ -1,5 +1,9 @@
+/**
+ * Planetary symbols mapping
+ */
+
 // Mapping for planetary symbols in the Astronomicon font
-const PLANET_SYMBOL_MAP = {
+export const PLANET_SYMBOL_MAP = {
     // Character mappings for Astronomicon.ttf
     'sun': 'Q',      // The Sun
     'moon': 'R',     // The Moon
@@ -15,7 +19,7 @@ const PLANET_SYMBOL_MAP = {
 };
 
 // Mapping for zodiac symbols in the Astronomicon font
-const ZODIAC_SYMBOL_MAP = {
+export const ZODIAC_SYMBOL_MAP = {
     'Aries': 'A',        // Aries
     'Taurus': 'B',       // Taurus
     'Gemini': 'C',       // Gemini
@@ -30,7 +34,11 @@ const ZODIAC_SYMBOL_MAP = {
     'Pisces': 'L'        // Pisces
 };
 
-// Function to get the custom font symbol for a planet
-function getPlanetSymbol(planetName) {
+/**
+ * Get the custom font symbol for a planet
+ * @param {string} planetName - The name of the planet
+ * @returns {string} The symbol for the planet
+ */
+export function getPlanetSymbol(planetName) {
     return PLANET_SYMBOL_MAP[planetName.toLowerCase()] || '?';
 }

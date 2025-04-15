@@ -61,7 +61,7 @@ const CELESTIAL_OBJECTS = {
         eccentricity: 0.01671022,
         inclination: 0,
         color: '#ffdd44',
-        radius: 100
+        radius: 90
     },
     'mercury': { 
         symbol: '☿',  // Unicode fallback
@@ -73,7 +73,7 @@ const CELESTIAL_OBJECTS = {
         eccentricity: 0.20563069,
         inclination: 7.00487,
         color: '#8c8c8c',
-        radius: 150
+        radius: 120
     },
     'venus': { 
         symbol: '♀',  // Unicode fallback
@@ -85,7 +85,7 @@ const CELESTIAL_OBJECTS = {
         eccentricity: 0.00677323,
         inclination: 3.39471,
         color: '#e39e54',
-        radius: 170
+        radius: 150
     },
     'mars': { 
         symbol: '♂',  // Unicode fallback
@@ -97,7 +97,7 @@ const CELESTIAL_OBJECTS = {
         eccentricity: 0.09341233,
         inclination: 1.85061,
         color: '#c1440e',
-        radius: 190
+        radius: 180
     },
     'jupiter': { 
         symbol: '♃',  // Unicode fallback
@@ -121,7 +121,7 @@ const CELESTIAL_OBJECTS = {
         eccentricity: 0.05415060,
         inclination: 2.48446,
         color: '#e0bb95',
-        radius: 230
+        radius: 240
     }
 };
 
