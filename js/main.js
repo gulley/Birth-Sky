@@ -57,10 +57,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // True zodiac toggle
     document.getElementById('true-zodiac-toggle').addEventListener('change', function() {
-        // Start zodiac transition animation
+        // Polarity reversed: checked = traditional, unchecked = true zodiac
         startZodiacTransition(
-            this.checked, 
-            ZODIAC_SIGNS, 
+            !this.checked, // true when unchecked (true zodiac), false when checked (traditional)
+            ZODIAC_SIGNS,
             function() {
                 // Get the current date from the date picker
                 const dateInput = document.getElementById('date-picker').value;
@@ -184,8 +184,9 @@ function updateCelestialPositions(date) {
     // Then, draw Earth medallion and all planet medallions on top of stalks
     drawEarthMedallion();
     
-    // Draw all other medallions
-    for (const object of objectData) {
+    // Draw all other medallions in reverse radial order (inner on top)
+    const sortedObjectData = [...objectData].sort((a, b) => b.info.radius - a.info.radius);
+    for (const object of sortedObjectData) {
         drawCelestialMedallion(object.name, object.info, object.longitude, object.info.radius);
     }
     

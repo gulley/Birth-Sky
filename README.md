@@ -7,12 +7,9 @@ This application calculates and displays the positions of 7 celestial objects (S
 
 ## To Do
 
-- Radial zodiac grid lines should go over the opaque zodiac circle and out to edges of the sky circle.
-- Switch checkbox polarity so it says "Use Traditional Zodiac" and is off by default.
-- Sun should be in innermost planet ring
-- Even out the medallion spacing
 - Add a "label mode" that shows
-    - Evening and morning sky
+    - Arc representing the evening and morning sky
+    - A few of the stars from the ecliptic. Antares, Regulus, Spica
     - Planet info cards
     - Seasons (with square)
     - Quarter Days (solstices and equinoxes)
