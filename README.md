@@ -13,6 +13,7 @@ This application calculates and displays the positions of 7 celestial objects (S
 - Even out the medallion spacing
 - Add a "label mode" that shows
     - Evening and morning sky
+    - Planet info cards
     - Seasons (with square)
     - Quarter Days (solstices and equinoxes)
     - Cross-Quarter Days (May Day, Lammas, Halloween, Groundhog Day)

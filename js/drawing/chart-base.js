@@ -18,7 +18,7 @@ export function initializeCanvas(canvasElement) {
     ctx = canvas.getContext('2d');
     centerX = canvas.width / 2;
     centerY = canvas.height / 2;
-    maxRadius = Math.min(centerX, centerY) - 50;
+    maxRadius = Math.min(centerX, centerY);
     
     return { canvas, ctx, centerX, centerY, maxRadius };
 }
@@ -126,8 +126,8 @@ export function drawZodiacSigns(zodiacSigns) {
  * @param {Object} celestialObjects - The celestial objects configuration
  */
 export function drawOrbitCircles(celestialObjects) {
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = 'rgba(100, 100, 100, 0.15)'; // Low-contrast gray
+    ctx.lineWidth = 12;
+    ctx.strokeStyle = 'rgba(100, 100, 100, 0.1)'; // Low-contrast gray
     
     for (const [objectName, objectInfo] of Object.entries(celestialObjects)) {
         ctx.beginPath();
