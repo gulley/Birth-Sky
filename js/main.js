@@ -25,9 +25,9 @@ document.addEventListener('DOMContentLoaded', function() {
     centerY = canvasContext.centerY;
     maxRadius = canvasContext.maxRadius;
 
-    // Initialize date picker with current date and time
+    // Initialize date picker with current date only
     const now = new Date();
-    const dateString = now.toISOString().slice(0, 16); // Format: YYYY-MM-DDThh:mm
+    const dateString = now.toISOString().slice(0, 10); // Format: YYYY-MM-DD
     document.getElementById('date-picker').value = dateString;
     
     // Load the custom font before rendering
@@ -40,17 +40,19 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('date-picker').addEventListener('change', function() {
         const dateInput = this.value;
         if (dateInput) {
-            const selectedDate = new Date(dateInput);
+            // Parse as date only (local time, no time component)
+            const [year, month, day] = dateInput.split('-');
+            const selectedDate = new Date(year, month - 1, day);
             updateCelestialPositions(selectedDate);
         } else {
             updateCelestialPositions();
         }
     });
 
-    // Current time button - use current time
+    // Current date button - use current date
     document.getElementById('current-time-btn').addEventListener('click', function() {
         const now = new Date();
-        const dateString = now.toISOString().slice(0, 16);
+        const dateString = now.toISOString().slice(0, 10); // YYYY-MM-DD
         document.getElementById('date-picker').value = dateString;
         updateCelestialPositions(now);
     });
@@ -65,7 +67,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Get the current date from the date picker
                 const dateInput = document.getElementById('date-picker').value;
                 if (dateInput) {
-                    updateCelestialPositions(new Date(dateInput));
+                    const [year, month, day] = dateInput.split('-');
+                    updateCelestialPositions(new Date(year, month - 1, day));
                 } else {
                     updateCelestialPositions();
                 }
