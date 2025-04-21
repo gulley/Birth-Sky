@@ -45,7 +45,7 @@ const ZODIAC_SYMBOL_MAP = {
     'libra': 'G',        // Libra
     'scorpio': 'H',      // Scorpio
     'sagittarius': 'I',  // Sagittarius
-    'capricorn': '\\',   // Capricorn
+    'capricorn': 'J',   // Capricorn
     'aquarius': 'K',     // Aquarius
     'pisces': 'L'        // Pisces
 };

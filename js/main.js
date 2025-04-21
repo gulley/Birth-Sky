@@ -241,8 +241,76 @@ function updateCelestialPositions(date) {
     }
 
     
-    // Update celestial object data display
-    document.getElementById('planet-data').innerHTML = objectDataHTML;
+    // --- Tooltip hover logic ---
+    // Store positions for hit testing
+    const hoverObjects = [...objectData.map(obj => ({
+        name: obj.name,
+        info: {
+            ...obj.info,
+            rightAscension: obj.rightAscension,
+            declination: obj.declination
+        },
+        longitude: obj.longitude,
+        radius: obj.info.radius
+    }))];
+    // Add fixed stars to hover targets
+    for (const star of fixedStarMedallions) {
+        hoverObjects.push({
+            name: star.name,
+            info: {
+                ...star,
+                rightAscension: star.rightAscension !== undefined ? star.rightAscension : (star.longitude / 15),
+                declination: star.declination !== undefined ? star.declination : 0
+            },
+            longitude: star.longitude,
+            radius: star.radius
+        });
+    }
+    // Mouse move event for tooltip
+    const canvasElem = document.getElementById('planet-chart');
+    const tooltip = document.getElementById('planet-tooltip');
+    canvasElem.onmousemove = function(e) {
+        const rect = canvasElem.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        // Find closest object within threshold
+        let found = null;
+        let minDist = 30; // px threshold
+        for (const obj of hoverObjects) {
+            // Convert longitude/radius to canvas coordinates
+            const radians = (90 - obj.longitude) * Math.PI / 180;
+            const x = centerX + obj.radius * Math.cos(radians);
+            const y = centerY - obj.radius * Math.sin(radians);
+            const dist = Math.sqrt((mouseX - x) ** 2 + (mouseY - y) ** 2);
+            if (dist < minDist) {
+                found = {obj, x, y};
+                minDist = dist;
+            }
+        }
+        if (found) {
+            // Show tooltip
+            tooltip.style.display = 'block';
+            tooltip.style.left = (found.x + rect.left + 20) + 'px';
+            tooltip.style.top = (found.y + rect.top - 10) + 'px';
+            // Format info
+            let html = `<div class="planet-info" style="background-color: ${adjustColor(found.obj.info.color, -40)}; border: 1px solid ${adjustColor(found.obj.info.color, 20)}; padding: 8px; border-radius: 8px; min-width: 120px; text-align: center;">`;
+            html += `<span class="planet-symbol" style="color: ${found.obj.info.color}; font-size: 24px;">${found.obj.info.customSymbol || found.obj.info.symbol}</span><br>`;
+            html += `<strong>${found.obj.info.name}</strong><br>`;
+            if (found.obj.info.rightAscension !== undefined && found.obj.info.declination !== undefined) {
+                html += `<small>RA: ${found.obj.info.rightAscension.toFixed ? found.obj.info.rightAscension.toFixed(2) : found.obj.info.rightAscension}h, Dec: ${found.obj.info.declination.toFixed ? found.obj.info.declination.toFixed(2) : found.obj.info.declination}°</small><br>`;
+            }
+            // Zodiac sign
+            const zodiacSign = getZodiacSign(found.obj.longitude);
+            const zodiacSymbol = ZODIAC_SYMBOL_MAP[zodiacSign.name] || zodiacSign.symbol;
+            html += `<span class="planet-symbol" style="font-size: 18px;">${zodiacSymbol}</span> ${zodiacSign.name}`;
+            html += `</div>`;
+            tooltip.innerHTML = html;
+        } else {
+            tooltip.style.display = 'none';
+        }
+    };
+    canvasElem.onmouseleave = function() { tooltip.style.display = 'none'; };
+    // --- End tooltip hover logic ---
     
     // Calculate planet positions
     const planetPositions = calculatePlanetPositions(displayDate);
