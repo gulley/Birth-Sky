@@ -7,9 +7,10 @@ This application calculates and displays the positions of 7 celestial objects (S
 
 ## To Do
 
+- A few of the stars from the ecliptic. Antares, Regulus, Spica
+
 - Add a "label mode" that shows
     - Arc representing the evening and morning sky
-    - A few of the stars from the ecliptic. Antares, Regulus, Spica
     - Planet info cards
     - Seasons (with square)
     - Quarter Days (solstices and equinoxes)

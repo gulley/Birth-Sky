@@ -37,7 +37,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Update immediately when date picker changes
-    document.getElementById('date-picker').addEventListener('change', function() {
+    const datePicker = document.getElementById('date-picker');
+    datePicker.addEventListener('change', function() {
         const dateInput = this.value;
         if (dateInput) {
             // Parse as date only (local time, no time component)
@@ -46,6 +47,30 @@ document.addEventListener('DOMContentLoaded', function() {
             updateCelestialPositions(selectedDate);
         } else {
             updateCelestialPositions();
+        }
+    });
+
+    // Enable continuous date increment/decrement with arrow keys
+    datePicker.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+            e.preventDefault();
+            const dateInput = this.value;
+            if (!dateInput) return;
+            let [year, month, day] = dateInput.split('-').map(Number);
+            // JS Date: month is 0-based
+            let dateObj = new Date(year, month - 1, day);
+            if (e.key === 'ArrowUp') {
+                dateObj.setDate(dateObj.getDate() + 1);
+            } else {
+                dateObj.setDate(dateObj.getDate() - 1);
+            }
+            // Format YYYY-MM-DD with leading zeros
+            const yyyy = dateObj.getFullYear();
+            const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const dd = String(dateObj.getDate()).padStart(2, '0');
+            const newDateStr = `${yyyy}-${mm}-${dd}`;
+            this.value = newDateStr;
+            updateCelestialPositions(dateObj);
         }
     });
 
