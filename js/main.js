@@ -7,7 +7,7 @@ import { CELESTIAL_OBJECTS, getCelestialObject } from './config/celestial-config
 import { calculateCelestialCoordinates, calculateMarsGeoVector, calculatePlanetPositions } from './utils/astronomy-calc.js';
 import { adjustColor } from './utils/color-helpers.js';
 import { loadCustomFont } from './utils/font-loader.js';
-import { initializeCanvas, drawCelestialChart, drawOrbitCircles, drawZodiacSigns } from './drawing/chart-base.js';
+import { initializeCanvas, drawCelestialChart, drawOrbitCircles, drawZodiacSigns, getCanvasContext } from './drawing/chart-base.js';
 import { drawEarthMedallion, drawCelestialMedallion, drawCelestialStalk } from './drawing/medallions.js';
 import { startZodiacTransition, isZodiacAnimating, cancelZodiacTransition } from './animation/zodiac-transition.js';
 import { ZODIAC_SYMBOL_MAP } from '../planet-symbols.js';
@@ -184,6 +184,53 @@ function updateCelestialPositions(date) {
     // Draw zodiac ring
     drawZodiacSigns(ZODIAC_SIGNS);
 
+    // Prepare fixed stars: Antares, Regulus, Spica (draw AFTER zodiac ring and masking circle)
+    const fixedStars = [
+        {
+            name: 'Antares',
+            longitude: 247.35, // RA (16h 29m 24s) in degrees
+            declination: -26.43,
+            symbol: '%'
+        },
+        {
+            name: 'Regulus',
+            longitude: 152.09, // RA (10h 08m 22s) in degrees
+            declination: 11.97,
+            symbol: '%'
+        },
+        {
+            name: 'Spica',
+            longitude: 201.29, // RA (13h 25m 11s) in degrees
+            declination: -11.16,
+            symbol: '%'
+        }
+    ];
+    const moonColor = CELESTIAL_OBJECTS['moon'].color;
+    // Use maxRadius from the canvas context so the stars are always visible
+    const { maxRadius } = ctx ? getCanvasContext() : { maxRadius: 300 };
+    const starRadius = maxRadius - 30;
+    const fixedStarMedallions = fixedStars.map(star => ({
+        ...star,
+        color: moonColor,
+        radius: starRadius,
+        isFixedStar: true
+    }));
+    for (const star of fixedStarMedallions) {
+        drawCelestialMedallion(
+            star.name,
+            {
+                symbol: star.symbol,
+                customSymbol: star.symbol, // Astronomicon "%"
+                name: star.name,
+                color: star.color,
+                radius: star.radius,
+                isFixedStar: true
+            },
+            star.longitude,
+            star.radius
+        );
+    }
+
     // Then, draw Earth medallion and all planet medallions on top of stalks
     drawEarthMedallion();
     
@@ -192,6 +239,7 @@ function updateCelestialPositions(date) {
     for (const object of sortedObjectData) {
         drawCelestialMedallion(object.name, object.info, object.longitude, object.info.radius);
     }
+
     
     // Update celestial object data display
     document.getElementById('planet-data').innerHTML = objectDataHTML;

@@ -60,6 +60,16 @@ export function drawCelestialMedallion(objectName, objectInfo, longitude, radius
     const x = centerX + radius * Math.cos(radians);
     const y = centerY - radius * Math.sin(radians);
     
+    // For fixed stars, only draw the symbol (no medallion, no glow, no rim)
+    if (objectInfo.isFixedStar) {
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '28px PlanetarySymbols, Arial';
+        ctx.fillText(objectInfo.customSymbol || objectInfo.symbol, x, y);
+        return;
+    }
+
     // Draw medallion glow
     const glowRadius = 25;
     const glowGradient = ctx.createRadialGradient(
