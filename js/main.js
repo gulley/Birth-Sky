@@ -76,27 +76,43 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Current date button - use current date
     document.getElementById('current-time-btn').addEventListener('click', function() {
+        // Always use 0h 0m 0s (midnight) for the current date
         const now = new Date();
-        const dateString = now.toISOString().slice(0, 10); // YYYY-MM-DD
+        const yyyy = now.getFullYear();
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+        let dateString;
+        if (document.getElementById('date-picker').type === 'datetime-local') {
+            dateString = `${yyyy}-${mm}-${dd}T00:00`;
+        } else {
+            dateString = `${yyyy}-${mm}-${dd}`;
+        }
         document.getElementById('date-picker').value = dateString;
-        updateCelestialPositions(now);
+        updateCelestialPositions(new Date(`${yyyy}-${mm}-${dd}T00:00:00`));
     });
     
     // True zodiac toggle
     document.getElementById('true-zodiac-toggle').addEventListener('change', function() {
-        // Polarity reversed: checked = traditional, unchecked = true zodiac
+        // Animate zodiac transition and always redraw the full chart
         startZodiacTransition(
             !this.checked, // true when unchecked (true zodiac), false when checked (traditional)
             ZODIAC_SIGNS,
-            function() {
-                // Get the current date from the date picker
+            function(interpolatedSigns) {
+                // Always use the exact value from the date picker, preserving time if present
                 const dateInput = document.getElementById('date-picker').value;
+                let dateObj = undefined;
                 if (dateInput) {
-                    const [year, month, day] = dateInput.split('-');
-                    updateCelestialPositions(new Date(year, month - 1, day));
-                } else {
-                    updateCelestialPositions();
+                    // Accept both date and datetime-local formats
+                    if (dateInput.length > 10) {
+                        // datetime-local: 'YYYY-MM-DDTHH:MM'
+                        dateObj = new Date(dateInput);
+                    } else {
+                        // date only: 'YYYY-MM-DD'
+                        const [year, month, day] = dateInput.split('-');
+                        dateObj = new Date(year, month - 1, day);
+                    }
                 }
+                updateCelestialPositions(dateObj, interpolatedSigns);
             }
         );
     });
@@ -106,9 +122,9 @@ document.addEventListener('DOMContentLoaded', function() {
  * Update celestial object positions in the UI
  * @param {Date} date - The date to calculate for (optional, defaults to current date)
  */
-function updateCelestialPositions(date) {
+function updateCelestialPositions(date, zodiacSignsOverride) {
     // Use provided date or current time
-    const displayDate = date || new Date();
+    const displayDate = date instanceof Date && !isNaN(date) ? date : new Date();
     
     // Calculate celestial object positions and update the data display
     let objectDataHTML = '';
@@ -201,13 +217,14 @@ function updateCelestialPositions(date) {
     }
     
     // Draw the base chart with stalks
-    drawCelestialChart(ZODIAC_SIGNS, objectData);
+    const zodiacToUse = zodiacSignsOverride || ZODIAC_SIGNS;
+    drawCelestialChart(zodiacToUse, objectData);
     
     // Draw orbit circles
     drawOrbitCircles(CELESTIAL_OBJECTS);
     
     // Draw zodiac ring
-    drawZodiacSigns(ZODIAC_SIGNS);
+    drawZodiacSigns(zodiacToUse);
 
     // Prepare fixed stars: Antares, Regulus, Spica (draw AFTER zodiac ring and masking circle)
     const fixedStars = [

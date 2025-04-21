@@ -117,7 +117,8 @@ function animateZodiacTransition() {
     
     // Update the display with the callback
     if (updateCallback) {
-        updateCallback(interpolatedSigns);
+        // Always trigger a full redraw of the chart, not just the zodiac ring
+        updateCallback(interpolatedSigns, true); // pass a flag for full redraw if needed
     }
     
     // Continue animation if not complete
