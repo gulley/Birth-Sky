@@ -46,8 +46,8 @@ canvas {
 }
 
 .planet-info {
-    padding: 10px;
-    margin: 8px;
+    padding: 6px;
+    margin: 4px;
     border-radius: 5px;
     background-color: #054154;
     width: 150px;
@@ -58,7 +58,8 @@ canvas {
 .planet-symbol {
     font-size: 24px;
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 0;
+    line-height: 1;
 }
 
 .controls {

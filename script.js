@@ -629,17 +629,11 @@ function updateCelestialPositions(date) {
             // Update data display HTML
             objectDataHTML += `
                 <div class="planet-info" style="background-color: ${adjustColor(objectInfo.color, -40)}; border: 1px solid ${adjustColor(objectInfo.color, 20)}">
-                    <span class="planet-symbol" style="color: ${objectInfo.color}">
-                        ${objectInfo.customSymbol || objectInfo.symbol}
-                    </span>
+                    <span class="planet-symbol" style="color: ${objectInfo.color}">${objectInfo.customSymbol || objectInfo.symbol}</span>
                     <strong>${objectInfo.name}</strong>
-                    <br>
-                    <span class="${customZodiacSymbol ? 'planet-symbol' : ''}" style="font-size: 18px;">
-                        ${customZodiacSymbol || zodiacSign.symbol}
-                    </span> 
+                    <span class="${customZodiacSymbol ? 'planet-symbol' : ''}" style="font-size: 18px;">${customZodiacSymbol || zodiacSign.symbol}</span>
                     ${zodiacSign.name}
-                    <br>
-                    <small>RA: ${formattedRA}h, Dec: ${formattedDec}°</small>
+
                 </div>
             `;
         } catch (error) {

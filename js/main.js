@@ -33,7 +33,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load the custom font before rendering
     loadCustomFont(function() {
         // Initial draw on page load
-        updateCelestialPositions();
+        const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        updateCelestialPositions(midnight);
     });
 
     // Update immediately when date picker changes
@@ -173,7 +174,7 @@ function updateCelestialPositions(date, zodiacSignsOverride) {
                     </span> 
                     ${zodiacSign.name}
                     <br>
-                    <small>RA: ${formattedRA}h, Dec: ${formattedDec}°</small>
+
                 </div>
             `;
         } catch (error) {
@@ -336,11 +337,9 @@ function updateCelestialPositions(date, zodiacSignsOverride) {
             tooltip.style.top = (found.y + rect.top - 10) + 'px';
             // Format info
             let html = `<div class="planet-info" style="background-color: ${adjustColor(found.obj.info.color, -40)}; border: 1px solid ${adjustColor(found.obj.info.color, 20)}; padding: 8px; border-radius: 8px; min-width: 120px; text-align: center;">`;
-            html += `<span class="planet-symbol" style="color: ${found.obj.info.color}; font-size: 24px;">${found.obj.info.customSymbol || found.obj.info.symbol}</span><br>`;
+            html += `<span class="planet-symbol" style="color: ${found.obj.info.color}; font-size: 24px;">${found.obj.info.customSymbol || found.obj.info.symbol}</span>`;
             html += `<strong>${found.obj.info.name}</strong><br>`;
-            if (found.obj.info.rightAscension !== undefined && found.obj.info.declination !== undefined) {
-                html += `<small>RA: ${found.obj.info.rightAscension.toFixed ? found.obj.info.rightAscension.toFixed(2) : found.obj.info.rightAscension}h, Dec: ${found.obj.info.declination.toFixed ? found.obj.info.declination.toFixed(2) : found.obj.info.declination}°</small><br>`;
-            }
+
             // Zodiac sign
             const zodiacSign = getZodiacSign(found.obj.longitude);
             const zodiacSymbol = ZODIAC_SYMBOL_MAP[zodiacSign.name] || zodiacSign.symbol;
