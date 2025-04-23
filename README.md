@@ -5,6 +5,8 @@ This application calculates and displays the positions of 7 celestial objects (S
 ## Run This Now
 [Birth Sky](https://gulley.github.io/Birth-Sky/)
 
+To validate against an accurate model, use [Stellarium Web Online Star Map](https://stellarium-web.org/).
+
 ## To Do
 
 - A few of the stars from the ecliptic. Antares, Regulus, Spica
