@@ -6,6 +6,7 @@ import { ZODIAC_SIGNS, getZodiacSign } from './config/zodiac-config.js';
 import { CELESTIAL_OBJECTS, getCelestialObject } from './config/celestial-config.js';
 import { calculateCelestialCoordinates, calculateMarsGeoVector, calculatePlanetPositions } from './utils/astronomy-calc.js';
 import { adjustColor } from './utils/color-helpers.js';
+import { generatePlanetInfoCard } from './utils/ui-templates.js';
 import { loadCustomFont } from './utils/font-loader.js';
 import { initializeCanvas, drawCelestialChart, drawOrbitCircles, drawZodiacSigns, getCanvasContext } from './drawing/chart-base.js';
 import { drawEarthMedallion, drawCelestialMedallion, drawCelestialStalk } from './drawing/medallions.js';
@@ -25,9 +26,12 @@ document.addEventListener('DOMContentLoaded', function() {
     centerY = canvasContext.centerY;
     maxRadius = canvasContext.maxRadius;
 
-    // Initialize date picker with current date only
+    // Initialize date picker with current local date
     const now = new Date();
-    const dateString = now.toISOString().slice(0, 10); // Format: YYYY-MM-DD
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    const dateString = `${yyyy}-${mm}-${dd}`; // Format: YYYY-MM-DD in local time
     document.getElementById('date-picker').value = dateString;
     
     // Load the custom font before rendering
@@ -75,45 +79,45 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Current date button - use current date
+    // Current date button - use current date and time
     document.getElementById('current-time-btn').addEventListener('click', function() {
-        // Always use 0h 0m 0s (midnight) for the current date
+        // Use the actual current date and time
         const now = new Date();
         const yyyy = now.getFullYear();
         const mm = String(now.getMonth() + 1).padStart(2, '0');
         const dd = String(now.getDate()).padStart(2, '0');
-        let dateString;
-        if (document.getElementById('date-picker').type === 'datetime-local') {
-            dateString = `${yyyy}-${mm}-${dd}T00:00`;
-        } else {
-            dateString = `${yyyy}-${mm}-${dd}`;
-        }
+        
+        // Format the date for the date picker (date only)
+        const dateString = `${yyyy}-${mm}-${dd}`;
         document.getElementById('date-picker').value = dateString;
-        updateCelestialPositions(new Date(`${yyyy}-${mm}-${dd}T00:00:00`));
+        
+        // Use the actual current time for the celestial calculations
+        updateCelestialPositions(now);
     });
     
     // True zodiac toggle
     document.getElementById('true-zodiac-toggle').addEventListener('change', function() {
+        // Get the current reference date before starting animation
+        const dateInput = document.getElementById('date-picker').value;
+        let referenceDate;
+        
+        if (dateInput) {
+            // Always use midnight for the selected date to ensure consistency
+            const [year, month, day] = dateInput.split('-');
+            referenceDate = new Date(year, month - 1, day);
+        } else {
+            // Fallback to today at midnight
+            const now = new Date();
+            referenceDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        }
+        
         // Animate zodiac transition and always redraw the full chart
         startZodiacTransition(
             !this.checked, // true when unchecked (true zodiac), false when checked (traditional)
             ZODIAC_SIGNS,
             function(interpolatedSigns) {
-                // Always use the exact value from the date picker, preserving time if present
-                const dateInput = document.getElementById('date-picker').value;
-                let dateObj = undefined;
-                if (dateInput) {
-                    // Accept both date and datetime-local formats
-                    if (dateInput.length > 10) {
-                        // datetime-local: 'YYYY-MM-DDTHH:MM'
-                        dateObj = new Date(dateInput);
-                    } else {
-                        // date only: 'YYYY-MM-DD'
-                        const [year, month, day] = dateInput.split('-');
-                        dateObj = new Date(year, month - 1, day);
-                    }
-                }
-                updateCelestialPositions(dateObj, interpolatedSigns);
+                // Always use the same reference date throughout the animation
+                updateCelestialPositions(referenceDate, interpolatedSigns);
             }
         );
     });
@@ -161,22 +165,8 @@ function updateCelestialPositions(date, zodiacSignsOverride) {
             // Get custom zodiac symbol if available
             const customZodiacSymbol = ZODIAC_SYMBOL_MAP[zodiacSign.name];
             
-            // Update data display HTML
-            objectDataHTML += `
-                <div class="planet-info" style="background-color: ${adjustColor(objectInfo.color, -40)}; border: 1px solid ${adjustColor(objectInfo.color, 20)}">
-                    <span class="planet-symbol" style="color: ${objectInfo.color}">
-                        ${objectInfo.customSymbol || objectInfo.symbol}
-                    </span>
-                    <strong>${objectInfo.name}</strong>
-                    <br>
-                    <span class="${customZodiacSymbol ? 'planet-symbol' : ''}" style="font-size: 18px;">
-                        ${customZodiacSymbol || zodiacSign.symbol}
-                    </span> 
-                    ${zodiacSign.name}
-                    <br>
-
-                </div>
-            `;
+            // Update data display HTML using the shared template function
+            objectDataHTML += generatePlanetInfoCard(objectInfo, zodiacSign);
         } catch (error) {
             console.error(`Error calculating position for ${objectName}:`, error);
             
@@ -335,16 +325,11 @@ function updateCelestialPositions(date, zodiacSignsOverride) {
             tooltip.style.display = 'block';
             tooltip.style.left = (found.x + rect.left + 20) + 'px';
             tooltip.style.top = (found.y + rect.top - 10) + 'px';
-            // Format info
-            let html = `<div class="planet-info" style="background-color: ${adjustColor(found.obj.info.color, -40)}; border: 1px solid ${adjustColor(found.obj.info.color, 20)}; padding: 8px; border-radius: 8px; min-width: 120px; text-align: center;">`;
-            html += `<span class="planet-symbol" style="color: ${found.obj.info.color}; font-size: 24px;">${found.obj.info.customSymbol || found.obj.info.symbol}</span>`;
-            html += `<strong>${found.obj.info.name}</strong><br>`;
-
-            // Zodiac sign
+            // Get the zodiac sign for this celestial object
             const zodiacSign = getZodiacSign(found.obj.longitude);
-            const zodiacSymbol = ZODIAC_SYMBOL_MAP[zodiacSign.name] || zodiacSign.symbol;
-            html += `<span class="planet-symbol" style="font-size: 18px;">${zodiacSymbol}</span> ${zodiacSign.name}`;
-            html += `</div>`;
+            
+            // Use the shared template function for consistent UI
+            const html = generatePlanetInfoCard(found.obj.info, zodiacSign, true);
             tooltip.innerHTML = html;
         } else {
             tooltip.style.display = 'none';
