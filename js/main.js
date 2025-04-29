@@ -272,15 +272,7 @@ function updateCelestialPositions(date, zodiacSignsOverride) {
     for (const object of sortedObjectData) {
         drawCelestialMedallion(object.name, object.info, object.longitude, object.info.radius);
     }
-    
-    // Draw evening sky arc on the outermost ring AFTER all medallions are drawn
-    // Find the sun's longitude from objectData
-    const sunData = objectData.find(obj => obj.name === 'sun');
-    if (sunData) {
-        drawEveningSkyArc(sunData.longitude, 45, starRadius);
-    }
-
-    
+        
     // --- Tooltip hover logic ---
     // Store positions for hit testing
     const hoverObjects = [...objectData.map(obj => ({
