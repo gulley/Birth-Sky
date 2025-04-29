@@ -57,14 +57,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Enable continuous date increment/decrement with arrow keys
     datePicker.addEventListener('keydown', function(e) {
-        if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
             e.preventDefault();
             const dateInput = this.value;
             if (!dateInput) return;
             let [year, month, day] = dateInput.split('-').map(Number);
             // JS Date: month is 0-based
             let dateObj = new Date(year, month - 1, day);
-            if (e.key === 'ArrowUp') {
+            if (e.key === 'ArrowRight') {
                 dateObj.setDate(dateObj.getDate() + 1);
             } else {
                 dateObj.setDate(dateObj.getDate() - 1);
@@ -263,7 +263,7 @@ function updateCelestialPositions(date, zodiacSignsOverride) {
             star.radius
         );
     }
-
+    
     // Then, draw Earth medallion and all planet medallions on top of stalks
     drawEarthMedallion();
     
@@ -271,6 +271,13 @@ function updateCelestialPositions(date, zodiacSignsOverride) {
     const sortedObjectData = [...objectData].sort((a, b) => b.info.radius - a.info.radius);
     for (const object of sortedObjectData) {
         drawCelestialMedallion(object.name, object.info, object.longitude, object.info.radius);
+    }
+    
+    // Draw evening sky arc on the outermost ring AFTER all medallions are drawn
+    // Find the sun's longitude from objectData
+    const sunData = objectData.find(obj => obj.name === 'sun');
+    if (sunData) {
+        drawEveningSkyArc(sunData.longitude, 45, starRadius);
     }
 
     
