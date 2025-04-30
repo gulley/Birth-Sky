@@ -12,12 +12,15 @@ import { initializeCanvas, drawCelestialChart, drawOrbitCircles, drawZodiacSigns
 import { drawEarthMedallion, drawCelestialMedallion, drawCelestialStalk } from './drawing/medallions.js';
 import { startZodiacTransition, isZodiacAnimating, cancelZodiacTransition } from './animation/zodiac-transition.js';
 import { ZODIAC_SYMBOL_MAP } from '../planet-symbols.js';
+import { registerServiceWorker } from './utils/register-service-worker.js';
 
 // Canvas context and dimensions
 let canvas, ctx, centerX, centerY, maxRadius;
 
 // Initialize the application when the DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
+    // Register service worker for PWA functionality
+    registerServiceWorker();
     // Initialize canvas
     canvas = document.getElementById('planet-chart');
     const canvasContext = initializeCanvas(canvas);
