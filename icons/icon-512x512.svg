@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="256" fill="#121212"/>
+  
+  <!-- Stars in the background -->
+  <circle cx="100" cy="150" r="2" fill="white"/>
+  <circle cx="150" cy="100" r="2" fill="white"/>
+  <circle cx="400" cy="120" r="2" fill="white"/>
+  <circle cx="350" cy="400" r="3" fill="white"/>
+  <circle cx="120" cy="350" r="2" fill="white"/>
+  <circle cx="420" cy="350" r="2" fill="white"/>
+  <circle cx="200" cy="450" r="2" fill="white"/>
+  <circle cx="450" cy="200" r="2" fill="white"/>
+  
+  <!-- Larger stars -->
+  <circle cx="180" cy="180" r="3" fill="white"/>
+  <circle cx="380" cy="280" r="3" fill="white"/>
+  <circle cx="280" cy="380" r="3" fill="white"/>
+  
+  <!-- Orbit circles -->
+  <circle cx="256" cy="256" r="200" stroke="#333333" stroke-width="2" fill="none"/>
+  <circle cx="256" cy="256" r="150" stroke="#333333" stroke-width="2" fill="none"/>
+  <circle cx="256" cy="256" r="100" stroke="#333333" stroke-width="2" fill="none"/>
+  <circle cx="256" cy="256" r="50" stroke="#333333" stroke-width="2" fill="none"/>
+  
+  <!-- Sun at the center -->
+  <circle cx="256" cy="256" r="20" fill="#FFD700"/>
+  
+  <!-- Planets on different orbits -->
+  <!-- Mercury - closest orbit -->
+  <circle cx="256" cy="206" r="6" fill="#9b59b6"/>
+  
+  <!-- Venus - second orbit -->
+  <circle cx="306" cy="306" r="8" fill="#e67e22"/>
+  
+  <!-- Earth - third orbit -->
+  <circle cx="156" cy="256" r="10" fill="#3498db"/>
+  
+  <!-- Mars - fourth orbit -->
+  <circle cx="256" cy="406" r="8" fill="#e74c3c"/>
+  
+  <!-- Jupiter - fifth orbit -->
+  <circle cx="406" cy="256" r="15" fill="#f1c40f"/>
+  
+  <!-- Text -->
+  <text x="256" y="480" font-family="Arial" font-size="24" fill="white" text-anchor="middle">Birth Sky</text>
+</svg>
