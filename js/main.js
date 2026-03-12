@@ -11,7 +11,8 @@ import { loadCustomFont } from './utils/font-loader.js';
 import { initializeCanvas, drawCelestialChart, drawOrbitCircles, drawZodiacSigns, getCanvasContext } from './drawing/chart-base.js';
 import { drawEarthMedallion, drawCelestialMedallion, drawCelestialStalk } from './drawing/medallions.js';
 import { startZodiacTransition, isZodiacAnimating, cancelZodiacTransition } from './animation/zodiac-transition.js';
-import { ZODIAC_SYMBOL_MAP } from '../planet-symbols.js';
+import { ZODIAC_SYMBOL_MAP } from './config/planet-symbols.js';
+import { FIXED_STARS } from './config/fixed-stars.js';
 import { registerServiceWorker } from './utils/register-service-worker.js';
 
 // Initialize the application when the DOM is loaded
@@ -212,31 +213,11 @@ function updateCelestialPositions(date, zodiacSignsOverride) {
     // Draw zodiac ring
     drawZodiacSigns(zodiacToUse);
 
-    // Prepare fixed stars: Antares, Regulus, Spica (draw AFTER zodiac ring and masking circle)
-    const fixedStars = [
-        {
-            name: 'Antares',
-            longitude: 247.35, // RA (16h 29m 24s) in degrees
-            declination: -26.43,
-            symbol: '%'
-        },
-        {
-            name: 'Regulus',
-            longitude: 152.09, // RA (10h 08m 22s) in degrees
-            declination: 11.97,
-            symbol: '%'
-        },
-        {
-            name: 'Spica',
-            longitude: 201.29, // RA (13h 25m 11s) in degrees
-            declination: -11.16,
-            symbol: '%'
-        }
-    ];
+    // Prepare fixed stars (draw AFTER zodiac ring and masking circle)
     const moonColor = CELESTIAL_OBJECTS['moon'].color;
     const { centerX, centerY, maxRadius } = getCanvasContext();
     const starRadius = maxRadius - 30;
-    const fixedStarMedallions = fixedStars.map(star => ({
+    const fixedStarMedallions = FIXED_STARS.map(star => ({
         ...star,
         color: moonColor,
         radius: starRadius,

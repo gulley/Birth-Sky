@@ -4,7 +4,7 @@
 
 import { colorToRgb } from '../utils/color-helpers.js';
 import { getCanvasContext } from './chart-base.js';
-import { getPlanetSymbol } from '../../planet-symbols.js';
+import { getPlanetSymbol } from '../config/planet-symbols.js';
 
 /**
  * Draw Earth medallion at the center

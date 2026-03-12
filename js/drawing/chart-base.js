@@ -2,7 +2,7 @@
  * Base chart drawing functionality
  */
 
-import { ZODIAC_SYMBOL_MAP } from '../../planet-symbols.js';
+import { ZODIAC_SYMBOL_MAP } from '../config/planet-symbols.js';
 import { drawCelestialStalk } from './medallions.js';
 
 // Canvas context and dimensions

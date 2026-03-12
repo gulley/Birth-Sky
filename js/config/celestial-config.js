@@ -2,7 +2,7 @@
  * Celestial objects configuration
  */
 
-import { getPlanetSymbol } from '../../planet-symbols.js';
+import { getPlanetSymbol } from './planet-symbols.js';
 
 // Celestial objects configuration with improved orbital elements
 export const CELESTIAL_OBJECTS = {

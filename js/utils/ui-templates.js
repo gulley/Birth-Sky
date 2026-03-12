@@ -2,7 +2,7 @@
  * UI template utility functions
  */
 
-import { ZODIAC_SYMBOL_MAP } from '../../planet-symbols.js';
+import { ZODIAC_SYMBOL_MAP } from '../config/planet-symbols.js';
 import { adjustColor } from './color-helpers.js';
 
 /**
