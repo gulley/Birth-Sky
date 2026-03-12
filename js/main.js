@@ -14,20 +14,12 @@ import { startZodiacTransition, isZodiacAnimating, cancelZodiacTransition } from
 import { ZODIAC_SYMBOL_MAP } from '../planet-symbols.js';
 import { registerServiceWorker } from './utils/register-service-worker.js';
 
-// Canvas context and dimensions
-let canvas, ctx, centerX, centerY, maxRadius;
-
 // Initialize the application when the DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     // Register service worker for PWA functionality
     registerServiceWorker();
     // Initialize canvas
-    canvas = document.getElementById('planet-chart');
-    const canvasContext = initializeCanvas(canvas);
-    ctx = canvasContext.ctx;
-    centerX = canvasContext.centerX;
-    centerY = canvasContext.centerY;
-    maxRadius = canvasContext.maxRadius;
+    initializeCanvas(document.getElementById('planet-chart'));
 
     // Initialize date picker with current local date
     const now = new Date();
@@ -242,8 +234,7 @@ function updateCelestialPositions(date, zodiacSignsOverride) {
         }
     ];
     const moonColor = CELESTIAL_OBJECTS['moon'].color;
-    // Use maxRadius from the canvas context so the stars are always visible
-    const { maxRadius } = ctx ? getCanvasContext() : { maxRadius: 300 };
+    const { centerX, centerY, maxRadius } = getCanvasContext();
     const starRadius = maxRadius - 30;
     const fixedStarMedallions = fixedStars.map(star => ({
         ...star,
@@ -305,6 +296,7 @@ function updateCelestialPositions(date, zodiacSignsOverride) {
     const canvasElem = document.getElementById('planet-chart');
     const tooltip = document.getElementById('planet-tooltip');
     canvasElem.onmousemove = function(e) {
+        const { centerX, centerY } = getCanvasContext();
         const rect = canvasElem.getBoundingClientRect();
         const mouseX = e.clientX - rect.left;
         const mouseY = e.clientY - rect.top;
