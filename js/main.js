@@ -4,7 +4,7 @@
 
 import { ZODIAC_SIGNS, getZodiacSign } from './config/zodiac-config.js';
 import { CELESTIAL_OBJECTS, getCelestialObject } from './config/celestial-config.js';
-import { calculateCelestialCoordinates, calculateMarsGeoVector, calculatePlanetPositions } from './utils/astronomy-calc.js';
+import { calculateCelestialCoordinates } from './utils/astronomy-calc.js';
 import { adjustColor } from './utils/color-helpers.js';
 import { generatePlanetInfoCard } from './utils/ui-templates.js';
 import { loadCustomFont } from './utils/font-loader.js';
@@ -340,11 +340,4 @@ function updateCelestialPositions(date, zodiacSignsOverride) {
     canvasElem.onmouseleave = function() { tooltip.style.display = 'none'; };
     // --- End tooltip hover logic ---
     
-    // Calculate planet positions
-    const planetPositions = calculatePlanetPositions(displayDate);
-    let planetPositionsHTML = '';
-    planetPositions.forEach(planet => {
-        planetPositionsHTML += `<div>${planet.name}: ${planet.position.x.toFixed(2)}, ${planet.position.y.toFixed(2)}, ${planet.position.z.toFixed(2)}</div>`;
-    });
-    document.getElementById('planet-positions').innerHTML = planetPositionsHTML;
 }
